@@ -46,6 +46,10 @@ SELECT *FROM my_store ORDER BY price;
 --Display the average price of items in store.
 SELECT AVG(price) FROM my_store;
 
+--Display only video games in store.
+SELECT * FROM my_store WHERE item LIKE '%games%';
+
+
 
 
 
