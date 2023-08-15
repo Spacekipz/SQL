@@ -67,7 +67,7 @@ SELECT count(netflix_people.director) FROM netflix_people;
 SELECT count(netflix_titles_info.type) FROM netflix_titles_info
 WHERE netflix_titles_info.type = 'TV Show';
 
-/* When was the most recent batch of tv shows and/or movies added to the database? */
+/* When was the most recent batch of tv shows and/or movies added to the database?*/
 SELECT max (date(netflix_titles_info.date_added))
 FROM netflix_titles_info;
 
