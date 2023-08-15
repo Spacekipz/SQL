@@ -1,0 +1,98 @@
+/* Create table about the people and what they do here */
+CREATE TABLE famous_people (id INTEGER         PRIMARY KEY AUTOINCREMENT,
+    fullname TEXT,
+    email TEXT,
+    birthdate TEXT,
+    friend_id INTEGER,
+    location_id INTEGER);
+    
+INSERT INTO famous_people (fullname, email, birthdate, friend_id, location_id)
+    VALUES ("Brandon Flowers", "flowers@gmail.com", "10/28/1994", 1, 2);
+INSERT INTO famous_people (fullname, email, birthdate, friend_id, location_id)
+    VALUES ("Laura Bailey", "Baileys@hotmail.com", "10/05/1992", 2, 2);
+INSERT INTO famous_people (fullname, email, birthdate, friend_id, location_id)
+    VALUES ("Arthas Menethil", "lichking@gmail.com", "12/31/1989", 3, 1);
+INSERT INTO famous_people (fullname, email, birthdate, friend_id, location_id)
+    VALUES ("Illidan Stormrage", "stormrage@aol.com", "09/04/1987", 4, 1);
+INSERT INTO famous_people (fullname, email, birthdate, friend_id, location_id)
+    VALUES ("Julian Casablancas", "thestrokes@hotmail.com", "12/31/1989", 5, 2);
+    
+/* Create a table showing the things famous people like to do */
+CREATE TABLE hobbies (id INTEGER PRIMARY       KEY AUTOINCREMENT,
+    hobby TEXT,
+    hobby_id INTEGER);
+    
+INSERT INTO hobbies (hobby, hobby_id)
+    VALUES ("Singing", 1);
+INSERT INTO hobbies (hobby, hobby_id)
+    VALUES ("Exploring", 2);
+INSERT INTO hobbies (hobby, hobby_id)
+    VALUES ("Napping", 3);
+    
+/* Create a table showing the locations for these famous people */    
+CREATE TABLE locations (id INTEGER PRIMARY     KEY AUTOINCREMENT,
+    place TEXT,
+    weather TEXT);
+    
+INSERT INTO locations (place, weather) 
+    VALUES ("Azeroth", "Sunny");
+INSERT INTO locations (place, weather) 
+    VALUES ("USA", "Cold");
+INSERT INTO locations (place, weather)
+    VALUES ("Canada", "Freezing");
+    
+
+/*Create a table showcasing the name and ID of a famous person and their age */
+CREATE TABLE famous_friends (id INTEGER PRIMARY KEY AUTOINCREMENT,
+    friend_name TEXT,
+    friend_age INTEGER);
+   
+
+INSERT INTO famous_friends (friend_name, friend_age)
+    VALUES ("Patrick Seitz", 45);
+INSERT INTO famous_friends  (friend_name, friend_age)
+    VALUES ("Billy Bobby", 26);
+INSERT INTO famous_friends  (friend_name, friend_age)
+    VALUES ("Varian Wrynn", 44);
+
+
+/* Where are the famous people from? Use an Inner Join. */
+SELECT famous_people.fullname, locations.place
+FROM famous_people
+JOIN locations
+    ON famous_people.location_id = locations.id;
+    
+/* Join the famous people to their hobbies using an Inner Join. */
+SELECT famous_people.id, famous_people.fullname, hobbies.id AS hobby_id, hobbies.hobby FROM famous_people
+JOIN hobbies
+    ON famous_people.id = hobbies.hobby_id;
+    
+/* Where are the famous people from AND how is the weather over there? Use an Inner Join. */
+SELECT famous_people.fullname, locations.place, locations.weather
+FROM famous_people
+JOIN locations
+    ON famous_people.location_id = locations.id;
+
+/* Who are the famous friends of the famous people? Join them together in a table. Some famous people might not have friends. */
+SELECT famous_people.fullname, famous_friends.friend_name 
+FROM famous_people
+LEFT OUTER JOIN famous_friends
+    ON famous_people.friend_id = famous_friends.id; 
+    
+/* Which famous person is from the USA and has a 26 year old friend? */
+SELECT famous_people.fullname, locations.place AS famous_person_location, famous_friends.friend_name, famous_friends.friend_age
+FROM famous_people
+JOIN locations
+    ON famous_people.location_id = locations.id
+JOIN famous_friends
+    ON famous_people.friend_id = famous_friends.id 
+    WHERE famous_friends.friend_age = 26;
+    
+/* Which famous person is from Azeroth and has a 44 year old friend? */
+SELECT famous_people.fullname, locations.place AS famous_person_location, famous_friends.friend_name, famous_friends.friend_age
+FROM famous_people
+JOIN locations
+    ON famous_people.location_id = locations.id
+JOIN famous_friends
+    ON famous_people.friend_id = famous_friends.id 
+    WHERE famous_friends.friend_age = 44;
