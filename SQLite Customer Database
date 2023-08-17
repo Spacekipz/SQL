@@ -1,0 +1,84 @@
+/*In this SQL, I'm querying a database with multiple tables in it to quantify statistics about customer and order data.*/
+
+/*How many orders were in January? */
+SELECT COUNT(orderID)
+FROM BIT_DB.JanSales
+WHERE length(orderID) = 6
+AND orderID <> 'Order ID';
+
+/* How many of the January orders were for an iphone? */
+SELECT COUNT(orderID)
+FROM BIT_DB.JanSales
+WHERE length(orderID) = 6
+AND Product = 'iPhone'
+AND orderID <> 'Order ID';
+
+/* Select the customer account numbers for all the orders that were placed in February */
+SELECT distinct acctnum
+FROM BIT_DB.customers cust
+
+INNER JOIN BIT_DB.FebSales
+ON cust.order_id = FebSales.orderID
+WHERE length(orderID) = 6
+AND orderID <> 'Order ID';
+
+
+
+/*Select the customer account numbers for all the orders that were placed in May for all Macbook Pro Laptops */
+SELECT distinct acctnum
+FROM BIT_DB.customers cust
+
+INNER JOIN BIT_DB.MaySales
+ON cust.order_id = MaySales.orderID
+WHERE Product = 'Macbook Pro Laptop'
+AND length(orderID) = 6
+AND orderID <> 'Order ID';
+
+/*Which product was the cheapest one sold in January? What was the price?*/
+SELECT distinct Product, price
+FROM BIT_DB.JanSales
+WHERE price in (SELECT MIN(price) FROM BIT_DB.JanSales);
+
+/*What is the total revenue for each product sold in January? */
+SELECT SUM(quantity)*price as revenue, Product
+FROM BIT_DB.JanSales
+GROUP BY product;
+
+/*Which products were sold in February at 548 Lincoln St, Seattle, WA 98101? How many of each were sold and what was the total revenue?*/
+SELECT Product, quantity, SUM(quantity)*price as revenue, location
+FROM BIT_DB.FebSales
+WHERE location = '548 Lincoln St, Seattle, WA 98101';
+
+/* What product brought in the most revenue for April?*/
+SELECT distinct  SUM(quantity)*price as revenue, Product
+FROM BIT_DB.AprSales
+ORDER BY revenue desc
+LIMIT 1;
+
+/* How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers? */
+SELECT 
+Count (distinct cust.acctnum), 
+AVG(quantity*price) as avg_spent
+FROM BIT_DB.FebSales Feb
+LEFT JOIN BIT_DB.customers cust
+ON Feb.orderID = cust.order_ID
+WHERE length(orderID) = 6
+AND Feb.quantity > 2
+AND orderID <> 'Order ID'
+ORDER by avg_spent desc
+LIMIT 2;
+
+/* What customers bought Iphones and Macbook Pro Laptops in May? */
+SELECT distinct acctnum,
+product,
+quantity,
+SUM(quantity)*price as total_spent
+FROM BIT_DB.customers cust
+LEFT JOIN BIT_DB.MaySales May
+ON cust.order_id = May.orderID
+WHERE length(orderID) = 6
+AND May.Product = 'iPhone'
+AND May.Product = 'Macbook Pro Laptop'
+AND orderID <> 'Order ID'
+ORDER by total_spent desc
+LIMIT 2;
