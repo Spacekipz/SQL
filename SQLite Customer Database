@@ -152,3 +152,34 @@ FROM BIT_DB.JanSales
 GROUP BY Product
 ORDER by SUM(Quantity * price) desc;
 
+/* What products in May are priced between $500-$1000? */
+SELECT Product, price
+FROM BIT_DB.MaySales
+WHERE price BETWEEN 500 AND 1000
+GROUP BY Product;
+
+/* Which customers have bought products that sell for over $500 in New York during the month of April? */
+SELECT order_id, Product, price, location
+FROM BIT_DB.customers
+LEFT JOIN BIT_DB.JanSales
+ON customers.order_id = JanSales.orderID
+WHERE location = '%NY%'
+AND price > 500
+AND length(orderid) = 6
+AND orderid <> 'Order ID'
+GROUP BY Product;
+
+/* Show the customer sales in February that are located in New York, Texas with a total purchase of $1200 or more? */
+SELECT order_id, SUM(quantity * price) as total_purchase, location
+FROM BIT_DB.customers
+LEFT JOIN BIT_DB.FebSales
+ON customers.order_id = FebSales.orderID
+WHERE location LIKE '%NY%'
+OR location LIKE '%TX%'
+GROUP BY location
+HAVING total_purchase >= 1200;
+
+
+
+
+
