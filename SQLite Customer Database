@@ -1,4 +1,3 @@
-/*In this SQL, I'm querying a database with multiple tables in it to quantify statistics about customer and order data.*/
 
 /*How many orders were in January? */
 SELECT COUNT(orderID)
@@ -82,3 +81,35 @@ AND May.Product = 'Macbook Pro Laptop'
 AND orderID <> 'Order ID'
 ORDER by total_spent desc
 LIMIT 2;
+
+/*Filtering by dates examples in Febrauary Sales table*/
+/*#1*/
+SELECT orderdate
+FROM BIT_DB.FebSales
+WHERE orderdate between '02/13/19 00:00' AND '02/18/19 00:00';
+
+/*#2*/
+SELECT location 
+FROM BIT_DB.FebSales 
+WHERE orderdate = '02/19/19 01:35';
+
+/*#3*/
+SELECT SUM(quantity)
+FROM BIT_DB.FebSales
+WHERE orderdate like '02/18/19%';
+
+/*List all the products sold in Los Angeles in February, and include how many of each were sold.*/
+SELECT Product, 
+SUM(quantity),
+location
+FROM Bit_DB.FebSales
+WHERE location like '%Los Angeles%'
+GROUP by Product;
+
+/*List all the products sold in New York City in May, and include how many of each were sold. */
+SELECT Product,
+SUM(quantity),
+location
+FROM BIT_DB.MaySales
+WHERE location like '%New York City%'
+GROUP by Product;
