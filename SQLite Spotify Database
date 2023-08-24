@@ -1,0 +1,133 @@
+/*Creating a Spotify table with data */
+
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal (4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+song_key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness decimal(8,7) NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL );
+
+DROP TABLE IF EXISTS SpotifyData;
+
+/* Select all the data from the Spotify table */
+SELECT * FROM Spotifydata;
+
+/* Show the artists and their tracks with popularity over 91. */
+SELECT artist_name, track_name, popularity
+FROM BIT_DB.Spotifydata
+WHERE popularity > 91
+ORDER by popularity desc;
+
+/* Show the artists and their tracks with an energy level of at least 0.5, or danceability of at least 0.5, or a key of 8 or higher? */
+SELECT artist_name, track_name, energy, danceability, song_key
+FROM BIT_DB.Spotifydata
+WHERE energy >0.5
+    OR danceability > 0.5
+    OR song_key >=8
+ORDER BY energy, danceability, song_key desc;
+
+/* What is the least popular track? */
+SELECT artist_name, track_name, popularity
+FROM BIT_DB.SpotifyData
+ORDER by popularity asc
+LIMIT 1;
+
+/* Which artists and their tracks have a tempo of 151.111 or higher and a time signature of 4? */
+SELECT artist_name, track_name, tempo, time_signature
+FROM BIT_DB.Spotifydata
+WHERE tempo >=151.111
+    AND time_signature = 4
+ORDER BY tempo, time_signature desc;
+
+/* What is the average popularity, energy, and danceability by artist and track? */
+SELECT artist_name, track_name, AVG(popularity), AVG(energy), AVG(danceability)
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name, track_name;
+
+/*Create a case that spits out information on some of the artists */
+SELECT artist_name, track_name,
+CASE
+    WHEN artist_name = "Doja Cat" THEN "This artist is very popular for the song, 'Woman'."
+    WHEN artist_name = "The Weeknd" THEN "This artist went big in the 2010s."
+    WHEN artist_name = "Glass Animals" THEN "This artist performed once at Outside Lands in San Francisco."
+    WHEN artist_name = "BTS" THEN "This is a boy band."
+    WHEN artist_name = "Bad Bunny" THEN "This artist has performed in Florida before."
+ELSE "No information on this artist."
+END AS artist_info
+FROM BIT_DB.Spotifydata
+ORDER BY artist_name;
+    
+/* Top 5 artists by popularity? */
+SELECT artist_name, track_name, popularity
+FROM BIT_DB.Spotifydata
+ORDER by popularity desc
+LIMIT 5;
+
+/*How many artists have at least 2 popular tracks in the table? */
+SELECT artist_name 
+FROM BIT_DB.Spotifydata
+GROUP by artist_name
+HAViNG COUNT(track_name) >=2
+ORDER BY COUNT(track_name) desc;
+
+/* How many artists are in this table? */
+SELECT COUNT(artist_name) AS total_artists
+FROM BIT_DB.Spotifydata;
+
+/* Calculate the average popularity for the artists in the Spotify data table. Then, for every artist with an average popularity of 90 or above, show their name, their average popularity, and label them as a “Top Star”. */
+WITH SpotifyPopularity_CTE AS (
+     SELECT 
+     artist_name,
+     AVG(popularity) as average_popularity
+     FROM Spotifydata
+     GROUP BY artist_name
+     ORDER BY popularity desc
+)
+
+SELECT artist_name,
+average_popularity,
+'Top Star' AS tag
+FROM SpotifyPopularity_CTE
+WHERE average_popularity >=90;
+
+/* Using a CTE (Common Table Expression), what is the highest average pipularity for an artist and lowest average popularity for an artist? */
+WITH SpotifyPopularity_CTE AS (
+     SELECT 
+     artist_name,
+     AVG(popularity) as average_popularity
+     FROM Spotifydata
+     GROUP BY artist_name
+    
+)
+
+/* Max average popularity using the CTE */
+SELECT artist_name,
+MAX(average_popularity)
+FROM SpotifyPopularity_CTE;
+
+/*Min average popularity using the CTE */
+WITH SpotifyPopularity_CTE AS (
+     SELECT 
+     artist_name,
+     AVG(popularity) as average_popularity
+     FROM Spotifydata
+     GROUP BY artist_name
+    
+)
+
+SELECT artist_name,
+MIN(average_popularity)
+FROM SpotifyPopularity_CTE;
