@@ -1,0 +1,168 @@
+--Create a data set of travelers who will be reimbursed by Accounts Payable--
+CREATE TABLE Travel_Employees (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+Employee_ID INTEGER,
+First_Name TEXT,
+Last_Name TEXT,
+Estimated_Total INTEGER,
+Travel_Dates TEXT,
+Destination TEXT,
+Conference TEXT,
+Acct_Code TEXT,
+TOTAL INTEGER);
+
+--Inserting rows into my created columns of employee travel reimbursements--
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (000233, "Suzanne", "Elsing", 720, "08/12 - 08/16/2023", "Tampa, FL", "Educator Summit", "202-21240-224230-99999-315-G315", 1425);
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (000222, "Mike", "Devito", 840, "07/12 - 07/15/2023", "Orlando, FL", "AVID Conference", "202-21240-224230-99999-315-G315", 1633);
+    
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (000234, "Rachel", "Haffenreffer", 421, "06/09 - 06/16/2023", "Portland, OR", "Autism Awareness", "101-21240-115320-114-3219", 639);
+    
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (004678, "Heather", "Bushard", 329, "03/04 - 03/06/2023", "Gainesville, FL", "University Conferences", "101-32140-246000-234-5489", 987);
+    
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (000233, "Suzanne", "Elsing", 235, "02/03 - 02/04/2023", "Portland, OR", "PPS Back to School Meetings", "202-21823-234100-175-G175", 275);
+    
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (000222, "Mike", "Devito", 235, "02/03 - 02/04/2023", "Portland, OR", "PPS Back to School Meetings", "202-21823-234100-175-G175", 275);
+    
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (094398, "Nick", "Forester", 576, "07/22 - 07/26/2023", "Sacaramento, CA", "West Coast Teachers Meeting", "405-31200-534100-99999-115-G215", 977);
+
+--Testing the created data to verify rows populate--    
+SELECT * FROM Travel_Employees;
+
+--Creating a second table that stores employee ID and email--
+CREATE TABLE Employee_Info (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+Employee_ID INTEGER,
+Email TEXT);
+
+--Inputting my rows for Employee ID and email--
+INSERT INTO Employee_Info (Employee_ID, Email)
+    VALUES (000233, "srad@gmail.com");
+    
+INSERT INTO Employee_Info (Employee_ID, Email)
+    VALUES (000222, "miked@gmail.com");
+
+INSERT INTO Employee_Info (Employee_ID, Email)
+    VALUES (000234, "rhaffenreffer@gmail.com");
+
+INSERT INTO Employee_Info (Employee_ID, Email)
+    VALUES (004678, "hbushardd@hotmail.com");
+
+INSERT INTO Employee_Info (Employee_ID, Email)
+    VALUES (094398, "nforester@gmail.com");
+
+--Aggregate function practice problems below--
+
+--What is the most expensive estimated travel trip? Who is the employee? Include their email from the Employee_Info table.--
+SELECT MAX(Estimated_Total), First_Name, Last_Name, Email
+FROM Travel_Employees
+INNER JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID;
+
+--What was the actual total of the employee with the highested estimated travel cost?--
+SELECT MAX(Estimated_Total), First_Name, Last_Name, Email, TOTAL
+FROM Travel_Employees
+INNER JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID;
+
+--Which employee had the lowest travel reimbursement? Don't confuse the estimated_total with total!--
+SELECT Travel_Employees.Employee_ID, MIN(Travel_Employees.TOTAL), Travel_Employees.First_Name, Travel_Employees.Last_Name, Employee_Info.Email
+FROM Travel_Employees
+INNER JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID;
+
+--Which employees are being reimbursed with a grant budget code? Include their emails. Hint: a grant code will have a 'G' in the account code. Some employees may be traveling more than once. --
+SELECT First_Name, Last_Name, Email, Acct_Code
+FROM Travel_Employees
+INNER JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID
+WHERE Acct_Code LIKE "%G%"
+ORDER BY First_Name;
+
+--How many employees were reimbursed for over $800?--
+SELECT COUNT(TOTAL)
+FROM Travel_EMPLOYEES;
+
+--Which employees were reimbursed for over $800 and what is their email? Combine totals of employees with multiple travel reimbursements.--
+
+SELECT Travel_Employees.Employee_ID, Travel_Employees.First_Name, Travel_Employees.Last_Name, SUM(Travel_Employees.TOTAL) AS Total_Reimbursement, Employee_Info.Email
+FROM Travel_Employees
+INNER JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID
+GROUP BY Travel_Employees.Employee_ID;
+
+--What is the average amount of travel reimbursements for employee# 000222--
+SELECT AVG(Travel_Employees.Total) AS Total_Reimb_AVG
+FROM Travel_Employees
+WHERE Travel_Employees.Employee_ID = 000222
+GROUP BY Travel_Employees.Employee_ID;
+
+--What is the average amount of travel reimbursements for employee# 000234--
+SELECT AVG(Travel_Employees.Total) AS Total_Reimb_AVG
+FROM Travel_Employees
+WHERE Travel_Employees.Employee_ID = 000234
+GROUP BY Travel_Employees.Employee_ID;
+
+--What is the total sum of ALL travel reimbursements?--
+SELECT SUM(Travel_Employees.Total) AS Total_Reimb_Amount
+FROM Travel_Employees;
+
+--Creating a CTE below that combines the total reimbursements for each employee and groups them by employee ID--
+WITH Combined_Total AS (
+SELECT
+Employee_id,
+SUM(Travel_Employees.TOTAL) AS Total_Reimbursements
+FROM Travel_Employees
+GROUP BY Travel_Employees.Employee_ID)
+
+--Using the created CTE to then make a query that joins employee reimbursement combined totals and email onto the Travel_Employees table based on employee ID. Creating left joins for possible $0 reimbursements.--
+SELECT Travel_Employees.Employee_ID, Travel_Employees.First_Name, Travel_Employees.Last_Name, Employee_Info.Email, Combined_Total.Total_Reimbursements
+FROM Travel_Employees
+LEFT JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID
+LEFT JOIN Combined_Total
+ON Travel_Employees.Employee_ID = Combined_Total.Employee_id
+GROUP BY Total_Reimbursements;
+
+--Insert into the Travel_Employees table employee ID 000519, Bobby Johnson, bjohnson@gmail.com, with a total reimbursement of $2500. They will be attending the Conference of Great Teachers in Orlando, FL, on August 07-12, 2023.--
+
+--First, I will assign Bobby Johnson in the Employee_Info table and then join to the Travel_Employees table.--
+INSERT INTO Employee_Info (Employee_ID, Email)
+    VALUES (000519, "bjohnson@gmail.com");
+INSERT INTO Travel_Employees (Employee_ID, First_Name, Last_Name, Estimated_Total, Travel_Dates, Destination, Conference, Acct_Code, TOTAL)
+    VALUES (000519, "Bobby", "Johnson", 1500, "08/07-08/12/2023", "Orlando, FL", "Conference of Great Teachers", "101-21220-555623-99999-115", 2500);
+    
+--Now, I will SELECT Bobby Johnson and pull up his information.--
+SELECT Travel_Employees.Employee_ID, Travel_Employees.First_Name, Travel_Employees.Last_Name, Travel_Employees.Estimated_Total, Travel_Employees.Travel_Dates, Travel_Employees.Destination, Travel_Employees.Conference, Travel_Employees.Acct_Code, Travel_Employees.TOTAL, Employee_Info.Email
+FROM Travel_Employees
+LEFT JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID
+WHERE Travel_Employees.Employee_ID = 000519;
+
+--Select all employees who have gone over their $1500 allotted professional development funds for the year. If they have gone over $1500, label it 'PD Funds Spent', if not over $1500 then label it as 'PD Funds Remaining'.--
+
+--Recalling my CTE to get the COMBINED SUM of each employee total reimbursements--
+WITH Combined_Total AS (
+SELECT
+Employee_id,
+SUM(Travel_Employees.TOTAL) AS Total_Reimbursements
+FROM Travel_Employees
+GROUP BY Travel_Employees.Employee_ID)
+
+--Joining the Travel_Employees table with the CTE and making my case to filter out who was reimbursed over $1500.--
+SELECT Travel_Employees.Employee_ID, Travel_Employees.First_Name, Travel_Employees.Last_Name, Employee_Info.Email, Combined_Total.Total_Reimbursements,
+CASE
+    WHEN Combined_Total.Total_Reimbursements > 1500 THEN 'Exceeded $1500 PD Funds'
+    WHEN Combined_Total.Total_Reimbursements < 1500 THEN 'PD Funds Available'
+END AS 'PD Funds'
+FROM Travel_Employees
+LEFT JOIN Employee_Info
+ON Travel_Employees.Employee_ID = Employee_Info.Employee_ID
+LEFT JOIN Combined_Total
+ON Travel_Employees.Employee_ID = Combined_Total.Employee_id;
