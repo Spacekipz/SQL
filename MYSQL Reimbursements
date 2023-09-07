@@ -1,0 +1,222 @@
+--Create a table that contains: employee name, employee ID, Union, email--
+CREATE TABLE Employee_Info (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+employeeID INTEGER,
+first_name TEXT,
+last_name TEXT,
+unionID TEXT,
+email TEXT);
+
+--Inserting my rows of employee info into the Employee_Info table--
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (012357, "Mike", "Rodgers", "PAT", "mrodgers@pps.net");
+    
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (013358, "Sarah", "Phillips", "PAT", "sphillips@pps.net");
+    
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (022457, "Robert", "Bangles", "PFSP", "rbangles86@gmail.com");
+    
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (093467, "Herman", "Shleck", "PAPSA", "hshleck@hotmail.com");
+
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (088442, "Nicholas", "Bowden", "PAT", "nbowden@pps.net");
+
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (076217, "Ian", "Brown", "PAPSA", "ibrown@hotmail.com");
+
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (049801, "Joe", "Kucera", "PAT", "jkucera@pps.net");
+
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (709211, "Suzanne", "Richards", "PAT", "srichards@pps.net");
+
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (088992, "Beckie", "Dingman", "PAPSA", "bdingman@hotmail.com");
+
+INSERT INTO Employee_Info (employeeID, first_name, last_name, unionID, email)
+    VALUES (055441, "Austin", "Wiley","PAPSA", "awiley@pps.net");
+    
+/*Verifying the rows populate into the Employee_Info table */  
+SELECT * FROM Employee_Info;
+
+/*Creating my Travel_Reimbursements table*/
+CREATE TABLE Travel_Reimbursements (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+employee_ID INTEGER,
+airline TEXT,
+baggage_fee INTEGER,
+ticket_cost INTEGER,
+destination TEXT);
+
+/*Inserting my data into the Travel_Reimbursements table.*/
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee, ticket_cost, destination)
+    VALUES (055441, "Spirit", 60, 221.36, "Dallas, TX");
+
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee, ticket_cost, destination)
+    VALUES (088992, "Jet Blue", 60, 330.22, "Orlando, FL");
+
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee, ticket_cost, destination)
+    VALUES (709211, "American Airlines", 100, 189.23, "Tampa, FL");
+
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (049801, "Spirit", 60, 273.42, "Chicago, IL");
+
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (076217, "Delta", 60, 237.60, "Austin, TX");
+    
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (088442, "Jet Blue", 60, 389.22, "Seattle, WA");
+
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (093467, "Spirit", 60, 435.67, "Salt Lake City, UT");
+
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (022457, "Delta", 100, 315.25, "Phoenix, AZ");
+    
+
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (013358, "American Airlines", 100, 399.04, "Las Vegas, NV");
+    
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (012357, "Jet Blue", 60, 178.15, "Atlanta, GA");
+    
+/*Verying the rows populate in my Travel_Reimbursements table*/
+SELECT * FROM Travel_Reimbursements;
+
+/*What is the baggage fee and airplane ticket total for each employee?*/
+--To solve this, I will first create a CTE as I will have use of the total amount later as well.--
+WITH Total_Cost AS (
+SELECT
+employee_ID,
+ROUND(SUM(Travel_Reimbursements.baggage_fee)) + ROUND(SUM(Travel_Reimbursements.ticket_cost)) AS total
+FROM Travel_Reimbursements
+GROUP BY Travel_Reimbursements.employee_ID
+)
+
+/*Now, I will join the CTE with the corresponsing employee IDs a long with their original baggage fee and airplane ticket cost. I will use a left join to include zero and null amounts.*/
+SELECT
+Employee_Info.first_name,
+Employee_Info.last_name,
+Travel_Reimbursements.employee_ID,
+Travel_Reimbursements.baggage_fee,
+Travel_Reimbursements.ticket_cost,
+Total_Cost.total
+FROM Travel_Reimbursements
+LEFT JOIN Total_Cost
+ON Travel_Reimbursements.employee_ID = Total_Cost.employee_ID
+LEFT JOIN Employee_Info
+ON Travel_Reimbursements.employee_ID = Employee_Info.employeeID;
+
+/*Using the CTE, what is the average, minimum, and maximum total reimbursement for each employee? Include their email as well.*/
+WITH Total_Cost AS (
+SELECT
+employee_ID,
+ROUND(SUM(Travel_Reimbursements.baggage_fee)) + ROUND(SUM(Travel_Reimbursements.ticket_cost)) AS total
+FROM Travel_Reimbursements
+GROUP BY Travel_Reimbursements.employee_ID
+)
+/*Maximum reimbursement goes to 013358, Sarah Phillips for $499.*/
+SELECT
+Travel_Reimbursements.employee_ID,
+Employee_Info.first_name,
+Employee_Info.last_name,
+Travel_Reimbursements.baggage_fee,
+Travel_Reimbursements.ticket_cost,
+Total_Cost.total,
+ROUND(MAX(Total_Cost.total))
+FROM Travel_Reimbursements
+LEFT JOIN Total_Cost
+ON Travel_Reimbursements.employee_ID = Total_Cost.employee_ID
+LEFT JOIN Employee_Info
+ON Travel_Reimbursements.employee_ID = Employee_Info.employeeID;
+
+WITH Total_Cost AS (
+SELECT
+employee_ID,
+ROUND(SUM(Travel_Reimbursements.baggage_fee)) + ROUND(SUM(Travel_Reimbursements.ticket_cost)) AS total
+FROM Travel_Reimbursements
+GROUP BY Travel_Reimbursements.employee_ID
+)
+/*The minimum reimbursement goes to 012357, Mike Rodgers in the amount of 238.*/
+SELECT
+Travel_Reimbursements.employee_ID,
+Employee_Info.first_name,
+Employee_Info.last_name,
+Travel_Reimbursements.baggage_fee,
+Travel_Reimbursements.ticket_cost,
+Total_Cost.total,
+ROUND(MIN(Total_Cost.total))
+FROM Travel_Reimbursements
+LEFT JOIN Total_Cost
+ON Travel_Reimbursements.employee_ID = Total_Cost.employee_ID
+LEFT JOIN Employee_Info
+ON Travel_Reimbursements.employee_ID = Employee_Info.employeeID;
+
+WITH Total_Cost AS (
+SELECT
+employee_ID,
+ROUND(SUM(Travel_Reimbursements.baggage_fee)) + ROUND(SUM(Travel_Reimbursements.ticket_cost)) AS total
+FROM Travel_Reimbursements
+GROUP BY Travel_Reimbursements.employee_ID
+)
+/*The average reimbursement overall is $369*/
+SELECT
+ROUND(AVG(Total_Cost.total))
+FROM Travel_Reimbursements
+LEFT JOIN Total_Cost
+ON Travel_Reimbursements.employee_ID = Total_Cost.employee_ID
+LEFT JOIN Employee_Info
+ON Travel_Reimbursements.employee_ID = Employee_Info.employeeID;
+
+/*How many employees are in the PAT union?*/
+SELECT COUNT (employeeID) AS pat_members
+FROM Employee_Info
+WHERE unionID LIKE '%PAT%';
+
+/*How many employees are in the PAPSA union and have a hotmail email?*/
+SELECT COUNT (employeeID) AS papsa_pps
+FROM Employee_Info
+WHERE unionID LIKE '%PAPSA%'
+AND email LIKE '%hotmail.com';
+
+/*Which employees are using pps email?*/
+SELECT 
+Employee_Info.employeeID,
+Employee_Info.first_name,
+Employee_Info.last_name,
+Employee_Info.email
+FROM Employee_Info
+WHERE Employee_Info.email LIKE '%pps.net';
+
+/*Create a case that shows the maximum professional development funds for PAT($1500) and PAPSA($2700) employees in the Employee_Info table.*/
+SELECT 
+Employee_Info.employeeID,
+Employee_Info.first_name,
+Employee_Info.last_name,
+Employee_Info.unionID,
+CASE
+    WHEN unionID = 'PAT'
+    THEN "$1500 Maximum"
+    WHEN unionID = 'PAPSA'
+    THEN "$2700 Maximum"
+    ELSE "No PD Funds"
+    END AS "PD Funds"
+FROM Employee_Info
+GROUP BY Employee_Info.employeeID;
+
+/*Find the employees with airfare tickets in the $200-$300 range located in Travel_Reimbursements table */
+SELECT employee_ID,
+ticket_cost 
+FROM Travel_Reimbursements
+WHERE ticket_cost BETWEEN 200 AND 300;
+
+/*Verify that all employee reimbursements include a baggage_fee and airfare ticket in their reimbursements.*/
+SELECT employee_ID,
+ticket_cost,
+baggage_fee
+FROM Travel_Reimbursements
+WHERE ticket_cost AND baggage_fee IS NOT NULL;
+
+
