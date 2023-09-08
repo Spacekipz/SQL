@@ -219,4 +219,66 @@ baggage_fee
 FROM Travel_Reimbursements
 WHERE ticket_cost AND baggage_fee IS NOT NULL;
 
+/*Create a windows function that shows the total cost of an employee's multiple travel reimbursements, that way the totals of two trips are not combined into just one lump sum.*/
+/*First, I will INSERT INTO Travel_Reimbursements table an employee with a second travel reimbursement.*/
+INSERT INTO Travel_Reimbursements (employee_ID, airline, baggage_fee,ticket_cost, destination)
+    VALUES (049801, "American Airlines", 60, 203.22, "Denver, CO");
+/*Now, I create a windows function so each employee row retains it's own total_cost (airfare ticket + baggage) instead of combining them all together. */
+SELECT
+Travel_Reimbursements.employee_ID,
+Travel_Reimbursements.first_name,
+Travel_Reimbursements.last_name,
+Travel_Reimbursements.ticket_cost,
+Travel_Reimbursements.baggage_fee,
+Travel_Reimbursements.ROUND(SUM(ticket_cost)) + ROUND(SUM(baggage_fee)) OVER (PARTITION BY employee_ID) AS flight_total
+FROM Travel_Reimbursements
+ORDER BY Travel_Reimbursements.last_name; 
+
+--More aggregating and filtering of data examples below--
+--baggage fee total?--
+SELECT SUM(baggage_fee)
+FROM Travel_Reimbursements;
+
+--Show ALL trip reimbursements that went to Texas in Travel_Reimbursements table? Start by using CTE from earlier...--
+WITH Total_Cost AS (
+SELECT
+employee_ID,
+ROUND(SUM(Travel_Reimbursements.baggage_fee)) + ROUND(SUM(Travel_Reimbursements.ticket_cost)) AS total
+FROM Travel_Reimbursements
+GROUP BY Travel_Reimbursements.employee_ID
+)
+
+SELECT Total_Cost.total, Travel_Reimbursements.destination
+FROM Travel_Reimbursements
+INNER JOIN Total_Cost
+ON Travel_Reimbursements.employee_ID = Total_Cost.employee_ID
+WHERE Travel_Reimbursements.destination LIKE '%TX';
+
+--How many employees went to Florida or Chicago?--
+SELECT COUNT(tr.employee_ID)
+FROM Travel_Reimbursements tr
+WHERE tr.destination LIKE '%FL'
+    OR tr.destination LIKE '%TX';
+
+--How many employees were not in Florida?--
+SELECT COUNT (tr.employee_ID)
+FROM Travel_Reimbursements tr
+WHERE NOT tr.destination LIKE '%FL';
+
+--Which employees received TOTAL reimbursements in between the amounts of $250-400?--
+WITH Total_Cost AS (
+SELECT
+employee_ID,
+ROUND(SUM(Travel_Reimbursements.baggage_fee)) + ROUND(SUM(Travel_Reimbursements.ticket_cost)) AS total
+FROM Travel_Reimbursements
+GROUP BY Travel_Reimbursements.employee_ID
+)
+
+SELECT Total_Cost.total, Travel_Reimbursements.employee_ID
+FROM Travel_Reimbursements
+LEFT JOIN Total_Cost
+ON Travel_Reimbursements.employee_ID = Total_Cost.employee_ID
+GROUP BY Travel_Reimbursements.employee_ID
+HAVING SUM(Total_Cost.total) BETWEEN 250 AND 400;
+
 
