@@ -1,0 +1,228 @@
+/* Travel Reimbursements - Accounts Payable Project - 1st half of 2023. Creating my mothly travel reimbursement tables below and importing my Excel spreadsheets as CSV files. */
+/* Create May 2023 Travel Reimbursement table in SQLite3 */
+CREATE TABLE BIT_DB.May_Travel_Reimb (
+name VARCHAR,
+estimated VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER,
+fee INTEGER,
+total INTEGER,
+comments VARCHAR);
+/* Hint for viewers: ticket stands for airfare ticket; fee stands for Corporate Travel Management (CTM) agent processing fee; total is the ticket and fee combined. */
+
+
+/* Function below used for deleting table if edits needed, then reuploaded by creating table again */
+DROP TABLE IF EXISTS BIT_DB.May_Travel_Reimb; 
+
+/* Testing the data to make sure rows are imported correctly */
+SELECT * FROM BIT_DB.May_Travel_Reimb 
+LIMIT 20;
+
+/* Create April 2023 Travel Reimbursement table in SQLite3 */
+CREATE TABLE BIT_DB.April_Travel_Reimb (
+name VARCHAR,
+estimated VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER,
+fee INTEGER,
+total INTEGER,
+comments VARCHAR);
+
+/* Testing out the imported April 2023 Travel Reimbursement CSV */
+SELECT * FROM April_Travel_Reimb
+LIMIT 15;
+
+
+/* Function below used for deleting table if edits needed, then reuploaded by creating table again */
+DROP TABLE IF EXISTS BIT_DB.April_Travel_Reimb; 
+
+/* Create June 2023 Travel Reimbursement Table in SQLite3 */
+CREATE TABLE BIT_DB.June_Travel_Reimb (
+name VARCHAR,
+estimated VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER,
+fee INTEGER,
+total INTEGER,
+comments VARCHAR);
+
+/* Testing the newly created June 2023 table to see if it populates the rows in correct columns. */
+SELECT * FROM June_Travel_Reimb 
+LIMIT 20;
+
+/* Function below used for deleting table if edits needed, then reuploaded by creating table again */
+DROP TABLE IF EXISTS BIT_DB.June_Travel_Reimb;
+
+/* Create the March 2023 Tracvel Reimbursement table */
+CREATE TABLE BIT_DB.March_Travel_Reimb (
+name VARCHAR,
+estimated VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER,
+fee INTEGER,
+total INTEGER,
+comments VARCHAR);
+
+/* Use this function if need to delete table/reupload with edits */
+DROP TABLE IF EXISTS BIT_DB.March_Travel_Reimb;
+
+/* Verifying the CSV uploaded the rows and columns below */
+SELECT * FROM March_Travel_Reimb
+LIMIT 20;
+
+/* Create the February 2023 Tracvel Reimbursement table */
+CREATE TABLE BIT_DB.February_Travel_Reimb (
+name VARCHAR,
+estimated VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER,
+fee INTEGER,
+total INTEGER,
+comments VARCHAR);
+
+/* Use this for deleting/editing/reuploading the table from a CSV */
+DROP TABLE IF EXISTS BIT_DB.February_Travel_Reimb;
+
+/* Testing the table to make sure CSV uploaded correctly */
+SELECT * FROM February_Travel_Reimb;
+
+/* Create the January 2023 Travel Reimbursement table */
+CREATE TABLE BIT_DB.January_Travel_Reimb (
+name VARCHAR,
+estimated VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER,
+fee INTEGER,
+total INTEGER,
+comments VARCHAR);
+
+/* Use below for editing/deleting table */
+DROP TABLE IF EXISTS BIT_DB.January_Travel_Reimb;
+
+/* Testing to make sure CSV uploaded correctly */
+SELECT * FROM January_Travel_Reimb
+LIMIT 20;
+
+/* Now we're going to query some data based on HR inquiries in regards to employee professional development funds and travel reimbursements. */
+/* What is the total sum of ALL PAT reimbursements for January 2023? */
+SELECT ROUND(SUM(January_Travel_Reimb.total)) AS PAT_TOTAL
+FROM BIT_DB.January_Travel_Reimb
+WHERE January_Travel_Reimb.acctcode LIKE '%101-22410-524520%';
+
+/* What is the total sum of all PAPSA travel reimbursements for May 2023? */
+SELECT ROUND(SUM(May_Travel_Reimb.total)) AS PAPSA_TOTAL
+FROM BIT_DB.May_Travel_Reimb
+WHERE May_Travel_Reimb.acctcode LIKE '%101-24910-531810%' 
+    OR '%101-24910-534210%';
+
+/* What is the average reimbursement for February 2023? */
+SELECT ROUND(AVG(February_Travel_Reimb.total))
+FROM BIT_DB.February_Travel_Reimb;
+
+/* What is the combined total of all the reimbursements in June? How many reimbursements for June? */
+SELECT ROUND(SUM(June_Travel_Reimb.total)) AS Total,
+COUNT(June_Travel_Reimb.total) AS Counted_Reimb
+FROM BIT_DB.June_Travel_Reimb;
+
+/* What is the total reimbursement amount for February 2023? I will create a CTE of all month totals for future use.*/
+WITH Total_Reimb_Feb AS (
+SELECT
+name,
+ROUND(SUM(total)) AS Feb_Total
+FROM February_Travel_Reimb
+)
+SELECT Total_Reimb_Feb.Feb_Total
+FROM Total_Reimb_Feb;
+
+/* What is the total reimbursement amount for January 2023? I will create a CTE of all month totals for future use.*/
+WITH Total_Reimb_Jan AS (
+SELECT
+name,
+ROUND(SUM(total)) AS Jan_Total
+FROM January_Travel_Reimb
+)
+SELECT Total_Reimb_Jan.Jan_Total
+FROM Total_Reimb_Jan;
+
+/* What is the total reimbursement amount for March 2023? I will create a CTE of all month totals for future use.*/
+WITH Total_Reimb_Mar AS (
+SELECT
+name,
+ROUND(SUM(total)) AS Mar_Total
+FROM March_Travel_Reimb
+)
+SELECT Total_Reimb_Mar.Mar_Total
+FROM Total_Reimb_Mar;
+
+/* What is the total reimbursement amount for April 2023? I will create a CTE of all month totals for future use.*/
+WITH Total_Reimb_Apr AS (
+SELECT
+name,
+ROUND(SUM(total)) AS Apr_Total
+FROM April_Travel_Reimb
+)
+SELECT Total_Reimb_Apr.Apr_Total
+FROM Total_Reimb_Apr;
+
+/* What is the total reimbursement amount for May 2023? I will create a CTE of all month totals for future use.*/
+WITH Total_Reimb_May AS (
+SELECT
+name,
+ROUND(SUM(total)) AS May_Total
+FROM May_Travel_Reimb
+)
+SELECT Total_Reimb_May.May_Total
+FROM Total_Reimb_May;
+
+/* HR wants to know which January reimbursements are for what budget groups? Also, what is the January combined total for reimbursements? */
+/* I start by calling on my January CTE to make a new columbn for a combined total reimbursement. */
+WITH Total_Reimb_Jan AS (
+SELECT
+name,
+ROUND(SUM(total)) AS Jan_Total
+FROM January_Travel_Reimb
+)
+
+SELECT name, destination_city, travel_date, acctcode, total,
+Total_Reimb_Jan.Jan_Total,
+CASE WHEN acctcode IN (SELECT acctcode FROM BIT_DB.January_Travel_Reimb WHERE acctcode LIKE '%101-22410-524520%')
+        THEN 'PAT'
+    WHEN acctcode IN (SELECT acctcode FROM BIT_DB.January_Travel_Reimb WHERE acctcode LIKE '%101-24910-531810%' OR '%101-24910-534210%')
+        THEN 'PAPSA'
+    WHEN acctcode IN (SELECT acctcode FROM BIT_DB.January_Travel_Reimb WHERE acctcode LIKE '%101-26492-531810%')
+        THEN 'PFSP'
+        ELSE 'Department_Budget'
+END AS Budget_Group
+FROM BIT_DB.January_Travel_Reimb
+LEFT JOIN Total_Reimb_Jan;
+
+/* HR wants to know how many January employee reimbursements were for PAT and how much went to PAT? */
+/* In this scenario, I will slightly modify the CTE to only aggregate the sum for PAT employees that have the PAT acctcode. I will use the COUNT(distinct name) as there may be the same employees on multiple trips that are PAT. */
+WITH Total_Reimb_Jan AS (
+SELECT
+name,
+ROUND(SUM(total)) AS Jan_Total,
+COUNT(distinct name) AS PAT_Employees
+FROM January_Travel_Reimb
+WHERE acctcode LIKE '%101-22410-524520%'
+)
+SELECT Jan_Total, PAT_Employees
+FROM Total_Reimb_Jan;
