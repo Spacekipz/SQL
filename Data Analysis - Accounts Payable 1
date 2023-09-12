@@ -226,3 +226,61 @@ WHERE acctcode LIKE '%101-22410-524520%'
 )
 SELECT Jan_Total, PAT_Employees
 FROM Total_Reimb_Jan;
+
+/* Which employees in the month of May went to Las Vegas, NV? */
+SELECT name, destination_city, travel_date, total
+FROM May_Travel_Reimb m
+WHERE m.destination_city LIKE '%Las Vegas, NV%'
+ORDER BY total desc;
+
+/* Which employees went to Los Angeles, CA with a total reimbursement of over $500 back in April? */
+SELECT name, destination_city, travel_date, total
+FROM April_Travel_Reimb a
+WHERE a.destination_city LIKE '%Los angeles, CA%'
+GROUP BY a.name
+HAVING a.total >= 500;
+
+/* Show all the reimbursements that came from grant gunds for the month of March? */
+SELECT m.name, m.acctcode, m.total
+FROM March_Travel_Reimb m
+WHERE acctcode LIKE '%205%';
+
+/* What is the total PAT reimbursements for the month of February? Show the employees and if they exceed their $1500 limit, flag it as 'overspent'. */
+WITH Total_Reimb_Feb AS (
+SELECT
+name,
+ROUND(SUM(total)) AS Feb_Total
+FROM February_Travel_Reimb
+)
+
+SELECT name, destination_city, travel_date, acctcode, total,
+Total_Reimb_Feb.Feb_Total,
+CASE WHEN acctcode IN (SELECT acctcode FROM BIT_DB.February_Travel_Reimb WHERE acctcode LIKE '%101-22410-524520%' AND total > 1500)
+        THEN 'PAT_Funds_Overspent'
+    WHEN acctcode IN (SELECT acctcode FROM BIT_DB.February_Travel_Reimb WHERE acctcode LIKE '%101-22410-524520%' AND total < 1500)
+        THEN 'PAT_Funds_Available'
+        ELSE 'Other Budgets'
+END AS budget_group
+FROM BIT_DB.February_Travel_Reimb
+LEFT JOIN Total_Reimb_Feb
+WHERE acctcode LIKE '%101-22410-524520%';
+
+/* What is the total grant-funded reimbursements for the month of May? Flag the employees that received over $1000 in reimbursements.. */
+WITH Total_Reimb_May AS (
+SELECT
+name,
+ROUND(SUM(total)) AS May_Total
+FROM May_Travel_Reimb
+)
+
+SELECT name, destination_city, travel_date, acctcode, total,
+Total_Reimb_May.May_Total,
+CASE WHEN acctcode IN (SELECT acctcode FROM BIT_DB.May_Travel_Reimb WHERE acctcode LIKE '%205%' AND total > 1000)
+        THEN 'flagged'
+    WHEN acctcode IN (SELECT acctcode FROM BIT_DB.May_Travel_Reimb WHERE acctcode LIKE '%205%' AND total < 1000)
+        THEN 'clear'
+END AS label
+FROM BIT_DB.May_Travel_Reimb
+LEFT JOIN Total_Reimb_May
+WHERE acctcode LIKE '%205%'
+ORDER BY label;
