@@ -246,13 +246,14 @@ FROM March_Travel_Reimb m
 WHERE acctcode LIKE '%205%';
 
 /* What is the total PAT reimbursements for the month of February? Show the employees and if they exceed their $1500 limit, flag it as 'overspent'. */
+/* Using my CTE February total reimbursement query below */
 WITH Total_Reimb_Feb AS (
 SELECT
 name,
 ROUND(SUM(total)) AS Feb_Total
 FROM February_Travel_Reimb
 )
-
+/* Applying my CTE query to a case statement below. */
 SELECT name, destination_city, travel_date, acctcode, total,
 Total_Reimb_Feb.Feb_Total,
 CASE WHEN acctcode IN (SELECT acctcode FROM BIT_DB.February_Travel_Reimb WHERE acctcode LIKE '%101-22410-524520%' AND total > 1500)
@@ -284,3 +285,25 @@ FROM BIT_DB.May_Travel_Reimb
 LEFT JOIN Total_Reimb_May
 WHERE acctcode LIKE '%205%'
 ORDER BY label;
+
+/* HR wants to know all airplane tickets based on amounts? See queries below. */
+/* Who received airplane tickets in February that were between $1000-$4000? */
+SELECT f.name, f.ticket
+FROM BIT_DB.February_Travel_Reimb f
+GROUP BY name
+HAVING f.ticket BETWEEN 1500 and 3000;
+
+/* Who received airplane ticket reimbursements for Washinngton, DC in May that were greater than $650 round trip?
+Use ,aggregate function.(TRIM (REPLACE (column_name, '$', '')) + 0.0) to bypass the '$' sign when aggregating ticket prices. */
+SELECT name, destination_city, travel_date, ticket
+FROM May_Travel_Reimb
+GROUP BY name
+HAVING destination_city = 'Washington, DC' 
+    AND SUM(TRIM (REPLACE (ticket, '$', '')) + 0.0);
+
+/*Who received airplane tickets for Texas OR Florida in January that were greater than $400 round trip? */
+SELECT name, destination_city, travel_date, ticket
+FROM January_Travel_Reimb
+GROUP BY name
+HAVING destination_city LIKE '%TX%' OR '%FL%'
+    AND SUM(TRIM (REPLACE (ticket, '$', '')) + 0.0) > 400;
