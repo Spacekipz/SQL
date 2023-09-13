@@ -294,7 +294,7 @@ GROUP BY name
 HAVING f.ticket BETWEEN 1500 and 3000;
 
 /* Who received airplane ticket reimbursements for Washinngton, DC in May that were greater than $650 round trip?
-Use ,aggregate function.(TRIM (REPLACE (column_name, '$', '')) + 0.0) to bypass the '$' sign when aggregating ticket prices. */
+Use ,aggregate function.(TRIM (REPLACE (ticket, '$', '')) + 0.0) to bypass the '$' sign when aggregating ticket prices. */
 SELECT name, destination_city, travel_date, ticket
 FROM May_Travel_Reimb
 GROUP BY name
