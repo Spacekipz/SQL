@@ -212,7 +212,10 @@ INSERT INTO FIN2002_Course (gatorlink_ID, first_name, last_name, grade)
     
 /* Aggregating data examples during end of term review. See below. */
 /* Who received an A grade in PSY2000? Hint: A-grades are between 95-100. */
-SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, psy.grade
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name,
+psy.grade
 FROM Student_Records sr
 /* Inner joining to exclude null searches in this query.*/
 INNER JOIN PSY2000_Course psy
@@ -223,7 +226,11 @@ WHERE psy.grade !=''
 ORDER BY psy.grade desc;
 
 /* Create a query that generates all students enrolled in PSY2000 with their student email, course grade, and if the student is enrolled in Pass/fail. Hint: Use left joins to include all students with missing info, such as grades. */
-SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, sr.email, psy.grade, psy.pass_fail,
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name,
+sr.email, psy.grade,
+psy.pass_fail,
 /* If the student is pass/fail then label their final grade as 'S' or 'U'. 'S' is anything higher than a 76. 'U' is unsatisfactory... anything lower than 75. I do this with a CASE statement. */
 CASE 
     WHEN psy.grade BETWEEN 76 AND 100 THEN 'S'
@@ -235,7 +242,11 @@ ON sr.gatorlink_ID = psy.gatorlink_ID
 WHERE sr.gatorlink_ID IN (SELECT psy.gatorlink_ID);
 
 /* Select every student and their courses with a grade of 76 or higher. Using inner joins for direct matches, excluding NULL. */
-SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, psy.grade as psy2000_grade, eng.grade AS eng1001_grade, fin.grade AS fin2002_grade
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name, psy.grade as psy2000_grade,
+eng.grade AS eng1001_grade,
+fin.grade AS fin2002_grade
 FROM Student_Records sr
 INNER JOIN PSY2000_Course psy
 ON sr.gatorlink_ID = psy.gatorlink_ID
@@ -260,7 +271,13 @@ FROM FIN2002_Course fin;
 
 /* Provide a query that shows everyone and what they are enrolled in. Include their degree as well. If someone is taking S/U as a grade option, label if they passed or not. 
 /*Using my IFNULL () function to neaten up the total data for classes where students are not enrolled. */
-SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, IFNULL(sr.degree, 'No Degree Chosen') AS degree, IFNULL(psy.grade, 'Not enrolled') AS psy2000_grade, IFNULL(fin.grade, 'Not Enrolled') AS fin2002_grade, IFNULL(eng.grade, 'Not Enrolled') AS eng1001_grade,
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name, IFNULL(sr.degree,
+'No Degree Chosen') AS degree,
+IFNULL(psy.grade, 'Not enrolled') AS psy2000_grade,
+IFNULL(fin.grade, 'Not Enrolled') AS fin2002_grade,
+IFNULL(eng.grade, 'Not Enrolled') AS eng1001_grade,
 CASE
     WHEN psy.pass_fail = 'Y' AND psy.grade BETWEEN 76 AND 100 THEN 'Satisfactory'
     WHEN psy.pass_fail = 'Y' AND psy.grade BETWEEN 0 AND 75 THEN 'Unsatisfactory'
