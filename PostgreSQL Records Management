@@ -1,0 +1,276 @@
+/* Sample work of Records Management End of Term Grade Processing using PostgreSQL. */
+/* Creating a table below that contains student records/employee information on a select group of students. */
+CREATE TABLE Student_Records (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+gatorlink_ID INTEGER,
+email TEXT,
+first_name TEXT,
+last_name TEXT,
+birthday TEXT,
+degree TEXT);
+
+/*Inserting my student/employee data into the Student_Records table. */
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (854291, 'jrodgers@ufl.edu', 
+    'Jackson', 'Rodgers', '08/02/1974', 'Engineering');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (989121, 'lroberts@ufl.edu', 
+    'Laurie', 'Roberts', '12/05/1969', 'Finance');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (781472, 'rbower@ufl.edu', 
+    'Reginald', 'Bower', '12/21/1967', 'English');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (001278, 'mwhite@ufl.edu', 
+    'Mason', 'White', '01/15/1977', 'Psycology');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (048149, 'sedwards@ufl.edu', 
+    'Sabrina', 'Edwards', '03/15/1994', 'English');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (141591, 'rjones@ufl.edu', 
+    'Rochelle', 'Jones', '02/03/1990', 'Electrical Engineering');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (557091, 'acurtis@ufl.edu', 
+    'Anne', 'Curtis', '11/21/1991', 'Civil Engineering');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (234698, 'mdeveto@ufl.edu', 
+    'Michael', 'DeVeto', '10/28/1994', 'English');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (113412, 'zdoe@ufl.edu', 
+    'Zachariah', 'Doe', '11/28/1994', 'Finance');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (223509, 'hstevens@ufl.edu', 
+    'Haley', 'Stevens', '04/25/1989', 'Finance');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (542111, 'nbowden@ufl.edu', 
+    'Nicholas', 'Bowden', '05/30/1995', ' ');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (636123, 'msmith@ufl.edu', 
+    'Matt', 'Smith', '10/22/1991', 'English');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (772311, 'amiles@ufl.edu', 'Austin', 'Miles', '03/23/1994', 'Mechanical Engineering');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (989231, 'nsaunders@ufl.edu', 
+    'Nate', 'Saunders', '02/28/1996', ' ');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (299371, 'bdeveto@ufl.edu', 
+    'Brayden', 'DeVeto', '10/22/1997', 'Journalism');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (875123, 'ltanners@ufl.edu', 
+    'Laura', 'Tanners', '02/22/1991', 'English');
+
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (594217, 'tturner@ufl.edu', 
+    'Tina', 'Turner', '05/05/1994', 'Electrical Engineering');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (923689, 'erobertson@ufl.edu', 
+    'Elizabeth', 'Robertson', '06/21/1991', 'Painting');
+    
+INSERT INTO Student_Records (gatorlink_id, email, first_name, last_name, birthday, degree)
+    VALUES (278115, 'rjohnson@ufl.edu', 
+    'Richard', 'Johnson', '10/12/1985', 'Finance');
+    
+/* Creating a table that shows the department head for each undergraduate degree. */
+CREATE TABLE Department_Heads (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+gatorlink_ID INTEGER,
+fullname TEXT,
+department TEXT,
+email TEXT
+);
+
+/* Inserting department head information into my table below. */
+INSERT INTO Department_Heads (gatorlink_ID, fullname, department, email)
+    VALUES (989121, 'Laurie Roberts', 'Finance', 'lroberts@ufl.edu');
+
+INSERT INTO Department_Heads (gatorlink_ID, fullname, department, email)
+    VALUES (854291, 'Jackson Rodgers', 'Engineering', 'jrodgers@ufl.edu');
+
+INSERT INTO Department_Heads (gatorlink_ID, fullname, department, email)
+    VALUES (781472, 'Reginald Bower', 'English', 'rbower@ufl.edu');
+
+INSERT INTO Department_Heads (gatorlink_ID, fullname, department, email)
+    VALUES (490122, 'Daniel Mendez', 'Painting & Sculpturing', 'dmendez@ufl.edu');
+    
+INSERT INTO Department_Heads (gatorlink_ID, fullname, department, email)
+    VALUES (001278, 'Samuel Hue', 'Journalism', 'shue@ufl.edu');
+
+INSERT INTO Department_Heads (gatorlink_ID, fullname, department, email)
+    VALUES (001278, 'Mason White', 'Psycology', 'mwhite@ufl.edu');
+    
+/* Creating my psycology course table with student information and grades. */    
+CREATE TABLE PSY2000_Course (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+gatorlink_ID INTEGER,
+first_name TEXT,
+last_name TEXT, 
+grade INTEGER,
+pass_fail TEXT
+);
+
+/*Inserting student information into my course table below. */
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail) 
+    VALUES (001278, 'Mason', 'White','','');
+
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (278115, 'Richard', 'Johnson', 96, 'N');
+
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (923689, 'Elizabeth', 'Robertson', 73,'Y');
+
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (594217, 'Tina', 'Turner', 88,'N');
+
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (875123, 'Laura', 'Tanners', 68,'N');
+    
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (299371, 'Brayden', 'DeVeto', 90,'Y');
+    
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (989231, 'Nate', 'Saunders', '','N');
+    
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (772311, 'Austin', 'Miles', 82,'Y');
+    
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (636123, 'Matt', 'Smith','','');
+
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (542111, 'Nicholas', 'Bowden', 66, 'N');
+    
+INSERT INTO PSY2000_Course (gatorlink_ID, first_name, last_name, grade, pass_fail)
+    VALUES (234698, 'Michael', 'DeVeto', 96, 'Y');
+
+/* Creating an engineering course with student enrollment and grades. */
+CREATE TABLE ENG1001_Course (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+gatorlink_ID INTEGER,
+first_name TEXT,
+last_name TEXT,
+grade TEXT
+);
+
+/*Inserting student information into the course table. */
+INSERT INTO ENG1001_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (854291, 'Jackson', 'Rodgers', '');
+    
+INSERT INTO ENG1001_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (234698, 'Michael', 'DeVeto', '');
+    
+INSERT INTO ENG1001_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (875123, 'Laura', 'Tanners', 88);
+    
+INSERT INTO ENG1001_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (278115, 'Richard', 'Johnson', 96);
+
+INSERT INTO ENG1001_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (989231, 'Nate', 'Saunders', 77);
+    
+/* Creating my finance course, FIN2002, with student enrollment and grades. */
+CREATE TABLE FIN2002_Course (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+gatorlink_ID INTEGER,
+first_name TEXT,
+last_name TEXT,
+grade INTEGER
+);
+
+/*Inserting student information into my finance course below. */
+INSERT INTO FIN2002_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (989121, 'Laurie', 'Roberts', '');
+
+INSERT INTO FIN2002_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (113412, 'Zachariah', 'Doe', 93);
+    
+INSERT INTO FIN2002_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (234698, 'Michael', 'DeVeto', '');
+
+INSERT INTO FIN2002_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (223509, 'Hayley', 'Stevens', 84);
+
+INSERT INTO FIN2002_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (278115, 'Richard', 'Johnson', 99);
+
+INSERT INTO FIN2002_Course (gatorlink_ID, first_name, last_name, grade)
+    VALUES (875123, 'Laura', 'Tanners', 93);
+    
+/* Aggregating data examples during end of term review. See below. */
+/* Who received an A grade in PSY2000? Hint: A-grades are between 95-100. */
+SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, psy.grade
+FROM Student_Records sr
+/* Inner joining to exclude null searches in this query.*/
+INNER JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+/*Excluding empty grades*/
+WHERE psy.grade !='' 
+    AND psy.grade BETWEEN 95 AND 100
+ORDER BY psy.grade desc;
+
+/* Create a query that generates all students enrolled in PSY2000 with their student email, course grade, and if the student is enrolled in Pass/fail. Hint: Use left joins to include all students with missing info, such as grades. */
+SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, sr.email, psy.grade, psy.pass_fail,
+/* If the student is pass/fail then label their final grade as 'S' or 'U'. 'S' is anything higher than a 76. 'U' is unsatisfactory... anything lower than 75. I do this with a CASE statement. */
+CASE 
+    WHEN psy.grade BETWEEN 76 AND 100 THEN 'S'
+    WHEN psy.grade BETWEEN 0 AND 75 THEN 'U'
+END AS su_grade
+FROM Student_Records sr
+LEFT JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+WHERE sr.gatorlink_ID IN (SELECT psy.gatorlink_ID);
+
+/* Select every student and their courses with a grade of 76 or higher. Using inner joins for direct matches, excluding NULL. */
+SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, psy.grade as psy2000_grade, eng.grade AS eng1001_grade, fin.grade AS fin2002_grade
+FROM Student_Records sr
+INNER JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+INNER JOIN FIN2002_Course fin
+ON sr.gatorlink_ID = fin.gatorlink_ID
+INNER JOIN ENG1001_Course eng
+ON sr.gatorlink_ID = eng.gatorlink_ID
+WHERE psy.grade BETWEEN 76 AND 100
+AND fin.grade BETWEEN 76 AND 100;
+
+/* How many students are enrolled in PSY2000 AND FIN2002? */
+SELECT COUNT(psy.gatorlink_ID + fin.gatorlink_ID) AS students_enrolled
+FROM Student_Records sr
+LEFT JOIN PSY2000_Course psy
+On sr.gatorlink_ID = psy.gatorlink_ID
+LEFT JOIN FIN2002_Course fin
+ON sr.gatorlink_ID = fin.gatorlink_ID;
+
+/* How many students are enrolled in FIN2002? Don't include the proffesor in the query. */
+SELECT COUNT(fin.gatorlink_ID) -1 AS students_enrolled
+FROM FIN2002_Course fin;
+
+/* Provide a query that shows everyone and what they are enrolled in. Include their degree as well. If someone is taking S/U as a grade option, label if they passed or not. 
+/*Using my IFNULL () function to neaten up the total data for classes where students are not enrolled. */
+SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, IFNULL(sr.degree, 'No Degree Chosen') AS degree, IFNULL(psy.grade, 'Not enrolled') AS psy2000_grade, IFNULL(fin.grade, 'Not Enrolled') AS fin2002_grade, IFNULL(eng.grade, 'Not Enrolled') AS eng1001_grade,
+CASE
+    WHEN psy.pass_fail = 'Y' AND psy.grade BETWEEN 76 AND 100 THEN 'Satisfactory'
+    WHEN psy.pass_fail = 'Y' AND psy.grade BETWEEN 0 AND 75 THEN 'Unsatisfactory'
+    ELSE 'No S/U'
+END AS su_grade
+FROM Student_Records sr
+LEFT JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+LEFT JOIN FIN2002_Course fin
+ON sr.gatorlink_ID = fin.gatorlink_ID
+LEFT JOIN ENG1001_Course eng
+ON sr.gatorlink_ID = eng.gatorlink_ID
+ORDER BY sr.gatorlink_ID;
