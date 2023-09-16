@@ -291,3 +291,88 @@ ON sr.gatorlink_ID = fin.gatorlink_ID
 LEFT JOIN ENG1001_Course eng
 ON sr.gatorlink_ID = eng.gatorlink_ID
 ORDER BY sr.gatorlink_ID;
+
+/* What is the average grade in PSY2000? */
+/* Here I will find the average of the students enrolled in the PSY2000 course, excluding NULL grades. */
+SELECT ROUND(AVG(psy.grade)) AS PSY2000_avg
+FROM PSY2000_Course psy;
+/* The average grade is 60. Now, include the NULL grades by turning them to 0, and then calculate the average. */
+SELECT ROUND(AVG(COALESCE(psy.grade, 0))) AS PSY2000_avg
+FROM PSY2000_Course psy;
+
+/* Now, how many students have a grade in PSY2000 above the average? */
+SELECT COUNT(psy.grade) AS above_avg_grades
+FROM PSY2000_Course psy
+GROUP BY psy.grade
+HAVING (above_avg_grades) > ROUND(AVG(psy.grade));
+
+/* Show the student record for Richard Johnson (278115) and what their course grades are. Then, show their total GPA as a second column. */
+SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, sr.degree, sr.email, psy.grade AS psy2000_grade, fin.grade AS fin2002_grade, eng.grade AS eng1001_grade,
+
+/* Creating case statements to calculate numerical grades into letter grades for each course. */
+CASE
+    WHEN psy.grade BETWEEN 94 AND 100 THEN  'A'
+    WHEN psy.grade BETWEEN 86 AND 93 THEN 'B'
+    WHEN psy.grade BETWEEN 76 AND 85 THEN 'C'
+    WHEN psy.grade BETWEEN 1 and 75 THEN 'F'
+    ELSE 'unknown'
+END AS 'PSY2002_letter_grade',
+
+CASE
+     WHEN fin.grade BETWEEN 94 AND 100 THEN 'A'
+    WHEN fin.grade BETWEEN 86 AND 93 THEN 'B'
+    WHEN fin.grade BETWEEN 76 AND 85 THEN 'C'
+    WHEN fin.grade BETWEEN 1 and 75 THEN 'F'
+    ELSE 'unknown'
+END AS 'FIN2002_letter_grade',
+    
+    
+ CASE  
+     WHEN eng.grade BETWEEN 94 AND 100 THEN 'A'
+    WHEN eng.grade BETWEEN 86 AND 93 THEN 'B'
+    WHEN eng.grade BETWEEN 76 AND 85 THEN 'C'
+    WHEN eng.grade BETWEEN 1 and 75 THEN 'F'
+    ELSE 'unknown'
+END AS 'ENG1001_letter_grade'
+
+FROM Student_Records sr
+/* Using Inner joins for direct matches in case student is not enrolled in course. */
+INNER JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+INNER JOIN FIN2002_Course fin
+ON sr.gatorlink_ID = fin.gatorlink_ID
+INNER JOIN ENG1001_Course eng
+ON sr.gatorlink_ID = eng.gatorlink_ID
+WHERE sr.gatorlink_ID LIKE 278115;
+
+/* Calculate the total credits earned of gatorlink ID 278115, Richard Johnson. Hint: A=4.0 credit, B=3.0 credit, C=2.0 credit, D=1.0 credit, F=0.0 credit.*/
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name,
+psy.grade AS PSY2000_grade,
+eng.grade AS ENG1001_grade,
+fin.grade AS FIN2002_grade,
+/* Since Richard received three A's in his three courses, his total GPA adds up to 12. */
+4.0 + 4.0 + 4.0 AS Total_Credits
+FROM Student_Records sr
+INNER JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+INNER JOIN FIN2002_Course fin
+ON sr.gatorlink_ID = fin.gatorlink_ID
+INNER JOIN ENG1001_Course eng
+ON sr.gatorlink_ID = eng.gatorlink_ID
+WHERE sr.gatorlink_ID = 278115;
+
+/* Show all the students who received an 'A' in PSY2000. */
+SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, psy.grade,
+/* Creating a case statement to make a column for the 'A' letter grade. */
+CASE
+    WHEN psy.grade BETWEEN 94 AND 100 THEN 'A'
+    ELSE 'Not a rockstar'
+    END AS letter_grade
+FROM Student_Records sr
+/* Inner join for direct grade matches only, no nulls. */
+INNER JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+WHERE psy.grade BETWEEN 94 AND 100
+ORDER BY sr.gatorlink_ID;
