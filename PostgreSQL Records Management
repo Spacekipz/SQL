@@ -265,7 +265,7 @@ On sr.gatorlink_ID = psy.gatorlink_ID
 LEFT JOIN FIN2002_Course fin
 ON sr.gatorlink_ID = fin.gatorlink_ID;
 
-/* How many students are enrolled in FIN2002? Don't include the proffesor in the query. */
+/* How many students are enrolled in FIN2002? Don't include the professor in the query. */
 SELECT COUNT(fin.gatorlink_ID) -1 AS students_enrolled
 FROM FIN2002_Course fin;
 
@@ -306,7 +306,7 @@ FROM PSY2000_Course psy
 GROUP BY psy.grade
 HAVING (above_avg_grades) > ROUND(AVG(psy.grade));
 
-/* Show the student record for Richard Johnson (278115) and what their course grades are. Then, show their total GPA as a second column. */
+/* Show the student record for Richard Johnson (278115) and what their course grades are. */
 SELECT sr.gatorlink_ID, sr.first_name, sr.last_name, sr.degree, sr.email, psy.grade AS psy2000_grade, fin.grade AS fin2002_grade, eng.grade AS eng1001_grade,
 
 /* Creating case statements to calculate numerical grades into letter grades for each course. */
