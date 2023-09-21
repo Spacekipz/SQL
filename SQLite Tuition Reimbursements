@@ -1,0 +1,229 @@
+/* Queries for Tuition Reimbursements in 2023. */
+/* Creating my Employee_Records table that can be used for joins. */
+CREATE TABLE BIT_DB.Employee_Records (
+name TEXT,
+employee_ID INTEGER,
+location VARCHAR,
+desc VARCHAR
+);
+
+/* Testing my created Employee_Records table. */
+SELECT * FROM Employee_Records;
+
+/* Creating my April 22, 2023 - May 30, 2023 travel reimbursements table. */
+CREATE TABLE BIT_DB.April_MayTR (
+tuition_date TEXT,
+name TEXT,
+credits INTEGER,
+tui_amt INTEGER,
+title TEXT,
+employee_ID INTEGER,
+location INTEGER,
+description TEXT
+);
+
+/* Function below used for deleting table if edits needed, then reuploaded by creating table again */
+DROP TABLE IF EXISTS BIT_DB.April_MayTR;
+
+/*Testing my newly created table with imported csv data. */
+SELECT * FROM BIT_DB.April_MayTR;
+
+/* Creating my June 24, 2023 - July 05, 2023 travel reimbursements table. */
+CREATE TABLE BIT_DB.June_JulyTR (
+tuition_date TEXT,
+name TEXT,
+credits INTEGER,
+tui_amt INTEGER,
+title TEXT,
+employee_ID INTEGER,
+location INTEGER,
+description TEXT
+);
+
+/* Testing my newly created table with imported csv data. */
+SELECT * FROM BIT_DB.June_JulyTR;
+
+/* Creating my July 06, 2023 - July 27, 2023 travel reimbursements table. */
+CREATE TABLE BIT_DB.July_JulyTR (
+tuition_date TEXT,
+name TEXT,
+credits INTEGER,
+tui_amt INTEGER,
+title TEXT,
+employee_ID INTEGER,
+location INTEGER,
+description TEXT
+);
+
+/* Testing my July 06, 2023 - July 27, 2023 travel reimbursements table to make sure csv file imported correctly. */
+SELECT * FROM BIT_DB.July_JulyTR;
+
+/* Creating my July 28, 2023 - September 01, 2023 travel reimbursements table. */
+CREATE TABLE BIT_DB.July_SeptemberTR (
+tuition_date TEXT,
+name TEXT,
+credits INTEGER,
+tui_amt INTEGER,
+title TEXT,
+employee_ID INTEGER,
+location INTEGER,
+description TEXT
+);
+
+/* Testing my July 28, 2023 - September 01, 2023 travel reimbursements table to make sure csv file loaded correctly. */
+SELECT * FROM BIT_DB.July_SeptemberTR;
+
+/* HR Professional Growth wants to know which employees earned the most credits through tuition reimbursements during April 22 - May 30, 2023. 
+Provide this information and exclude NULL searches. */
+SELECT amtr.employee_ID, amtr.credits
+FROM April_MayTR amtr
+WHERE amtr.employee_ID AND amtr.credits IS NOT NULL
+GROUP BY amtr.employee_ID
+ORDER BY amtr.credits desc;
+
+/* How many employees were reimbursed in April 22 - May 30, 2023? */
+/* Using DISTINCT to not include employees reimbursed more than once. */
+SELECT COUNT(DISTINCT am.employee_ID)
+FROM April_MayTR am;
+
+/* HR Professional Growth wants to know the employees being frequently reimbursed in the tuition reimbursement cycles April 22 - July 6, 2023? */
+/* Using inner join to filter out no matches/NULL. */
+SELECT am.tui_amt,
+ jj.tui_amt,
+ er.employee_ID,
+ er. name
+FROM Employee_Records er
+INNER JOIN April_MayTR am
+ON er.employee_ID = am.employee_ID
+INNER JOIN June_JulyTR jj
+ON er.employee_ID = jj.employee_ID;
+
+/* Below is April 22 - May 30, 2023 and July 6 - July 27, 2023 tuition reimbursement employees who received reimbursements in BOTH these cycles. */
+/* Again, we filter out the no matcxhes and NULLs by using our inner join. */
+SELECT am.tui_amt,
+ juljul.tui_amt,
+ er.employee_ID,
+ er. name
+FROM Employee_Records er
+INNER JOIN April_MayTR am
+ON er.employee_ID = am.employee_ID
+INNER JOIN July_JulyTR juljul
+ON er.employee_ID = juljul.employee_ID
+GROUP BY er.employee_ID;
+
+/* HR Professional Growth wants to know which employees were reimbursed for $2000 or more in the April 22 - May 30, 2023 cycle OR June 24 - July 5, 2023 cycle. 
+For all reimbursements in these cycles $2000 or more, label them as 'flagged'. */
+SELECT IFNULL(am.tui_amt, 0) AS April_May_reimb,
+ IFNULL(jj.tui_amt, 0) AS June_July_reimb,
+ er.employee_ID,
+ er. name,
+ /* Creating a case statement to set my tuition reimbursement parameters for 'flagged' or not. */
+ CASE WHEN am.tui_amt >= 2000 OR jj.tui_amt >= 2000 THEN 'flagged'
+ END AS 'hr_review'
+FROM Employee_Records er
+/* Using left joins here as one of the cycles can be null. We only need one cycle to be $2000 or more. */
+LEFT JOIN April_MayTR am
+ON er.employee_ID = am.employee_ID
+LEFT JOIN June_JulyTR jj
+ON er.employee_ID = jj.employee_ID
+WHERE am.tui_amt >=2000 OR jj.tui_amt >=2000
+GROUP BY er.employee_ID;
+
+/* HR Professional Growth wants to know which employees were reimbursed for $1500 or less in the April 22 - May 30, 2023 cycle OR June 24 - July 5, 2023 cycle. */
+SELECT am.tui_amt,
+ juljul.tui_amt,
+ er.employee_ID,
+ er. name
+FROM Employee_Records er
+INNER JOIN April_MayTR am
+ON er.employee_ID = am.employee_ID
+INNER JOIN July_JulyTR juljul
+ON er.employee_ID = juljul.employee_ID
+GROUP BY er.employee_ID;
+
+/* HR Professional Growth wants to know which employees were reimbursed for $1501 or more throughout April 22 - September 01, 2023 cycle. 
+For all reimbursements in these cycles $1501 or more, label them as 'High Reimbursement'. This only applies to individual cycle reimbursements, not combined amount. */
+SELECT IFNULL(am.tui_amt, 0) AS April_May_reimb,
+ IFNULL(jj.tui_amt, 0) AS June_July_reimb,
+ IFNULL(juljul.tui_amt, 0) AS July_July_reimb,
+ IFNULL(js.tui_amt, 0) AS July_September_reimb,
+ /* Creating my windows SUM function for calculating each employees average reimbursement for all 4 tuition reimbursement cycles. */
+  SUM(COALESCE(am.tui_amt, 0) + COALESCE(jj.tui_amt, 0) + COALESCE(juljul.tui_amt, 0) + COALESCE(js.tui_amt, 0)) OVER (PARTITION BY er.employee_ID) AS Employee_Total_Reimbursed,
+ er.employee_ID,
+ er. name,
+ /* Creating a case statement to check if tuition reimbursements are high or low. */
+ CASE WHEN (am.tui_amt <= 1500 OR jj.tui_amt <=1500 OR juljul.tui_amt <=1500 OR js.tui_amt <=1500) THEN 'Low Reimbursement'
+      WHEN (am.tui_amt >= 1501 OR jj.tui_amt >=1501 OR juljul.tui_amt >= 1501 OR js.tui_amt >=1501) THEN 'High Reimbursement'
+     ELSE 'N/A'
+ END AS 'hr_review'
+FROM Employee_Records er
+/* Using left joins here as one or 3 of the cycles can be null.*/
+LEFT JOIN April_MayTR am
+ON er.employee_ID = am.employee_ID
+LEFT JOIN June_JulyTR jj
+ON er.employee_ID = jj.employee_ID
+LEFT JOIN July_JulyTR juljul
+ON er.employee_ID = juljul.employee_ID
+LEFT JOIN July_SeptemberTR js
+ON er.employee_ID = js.employee_ID
+GROUP BY er.employee_ID;
+
+/* HR wants to know the average reimbursement rate for each of the tuition reimbursement cycles. */
+SELECT AVG(am.tui_amt) AS April_May_AVG
+FROM April_MayTR am;
+SELECT AVG(jj.tui_amt) AS June_July_AVG
+FROM June_JulyTR jj;
+SELECT AVG(juljul.tui_amt) AS July_July_AVG
+FROM July_JulyTR juljul;
+SELECT AVG(js.tui_amt) AS July_September_AVG
+FROM July_SeptemberTR js;
+
+/* HR wants to know how many employees in each of the four tuition reimbursement cycles earned AT LEAST 4 credits? */
+/* I will use my COUNT() for each TR cycle below. */
+SELECT COUNT(DISTINCT am.employee_ID)
+FROM April_MayTR am
+WHERE am.credits >=4;
+SELECT COUNT(DISTINCT jj.employee_ID)
+FROM June_JulyTR jj
+WHERE jj.credits >=4;
+SELECT COUNT(DISTINCT juljul.employee_ID)
+FROM July_JulyTR juljul
+WHERE juljul.credits >=4;
+SELECT COUNT(DISTINCT js.employee_ID)
+FROM July_SeptemberTR js
+WHERE js.credits >=4;
+
+/* HR Professional Growth wants to know ALL employees who received tuition reimbursements in June, July, and September. */
+/* I will use Inner join for exact matches (NO NULLS) and 'Group by employee_ID' in this query to find all the tuition reimbursements with 'June_JulyTR and July_JulyTR reimbursements.*/
+SELECT er.employee_ID,
+er.name,
+jj.tuition_date,
+jj.tui_amt,
+juljul.tuition_date,
+juljul.tui_amt
+FROM Employee_Records er
+/*Inner joins being used for direct matches only, no NULLS!*/
+INNER JOIN June_JulyTR jj
+ON er.employee_ID = jj.employee_ID
+INNER JOIN July_JulyTR juljul
+ON er.employee_ID = juljul.employee_ID
+INNER JOIN July_SeptemberTR js
+ON er.employee_ID = js.employee_ID
+GROUP BY er.employee_ID;
+
+/* HR wants to know how much tuition reimbursement TOTAL was received by employee ID 029685? */
+SELECT er.employee_ID,
+er.name,
+/* Creating a total reimbursement formula below and filtering out NULLs with '0' using COALESCE. */
+COALESCE(am.tui_amt, 0) + COALESCE(jj.tui_amt, 0) + COALESCE(juljul.tui_amt, 0) + COALESCE(js.tui_amt, 0) AS total_reimb
+FROM Employee_Records er
+LEFT JOIN April_MayTR am
+ON er.employee_ID = am.employee_ID
+LEFT JOIN June_JulyTR jj
+ON er.employee_ID = jj.employee_ID
+LEFT JOIN July_JulyTR juljul
+ON er.employee_ID = juljul.employee_ID
+LEFT JOIN July_SeptemberTR js
+ON er.employee_ID = js.employee_ID
+WHERE er.employee_ID = 029685
+GROUP BY er.employee_ID;
