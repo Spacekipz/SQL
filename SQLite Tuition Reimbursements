@@ -147,7 +147,7 @@ SELECT IFNULL(am.tui_amt, 0) AS April_May_reimb,
  IFNULL(jj.tui_amt, 0) AS June_July_reimb,
  IFNULL(juljul.tui_amt, 0) AS July_July_reimb,
  IFNULL(js.tui_amt, 0) AS July_September_reimb,
- /* Creating my windows SUM function for calculating each employees average reimbursement for all 4 tuition reimbursement cycles. */
+ /* Creating my windows SUM function for calculating each employees reimbursement for all 4 tuition reimbursement cycles. */
   SUM(COALESCE(am.tui_amt, 0) + COALESCE(jj.tui_amt, 0) + COALESCE(juljul.tui_amt, 0) + COALESCE(js.tui_amt, 0)) OVER (PARTITION BY er.employee_ID) AS Employee_Total_Reimbursed,
  er.employee_ID,
  er. name,
