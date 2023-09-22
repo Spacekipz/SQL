@@ -1,0 +1,172 @@
+/* Chinook database practice problems below. */
+
+/* Show Customers (their full names, customer ID, and country) who are not in the US. */
+SELECT 
+Customerid,
+FirstName,
+LastName,
+Country
+FROM chinook.customers
+WHERE Country !='USA';
+
+/* Show the first 1-10 customer IDs in numerical order. */
+SELECT
+Customerid,
+FirstName,
+LastName
+FROM chinook.customers
+WHERE Customerid BETWEEN 1 AND 10;
+
+/* Show only the Customers from Brazil or Germany. */
+SELECT 
+Customerid,
+FirstName,
+LastName,
+Country
+FROM chinook.customers
+WHERE Country ='Brazil' OR Country= 'Germany';
+
+/* Find the Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country. */
+SELECT
+c.Customerid,
+c.FirstName, 
+c.LastName, 
+c.Country, 
+i.invoiceid, 
+i.InvoiceDate, 
+i.BillingCountry
+FROM customers c
+/* Using inner join because we want direct matches only, no NULLs. */
+INNER JOIN invoices i
+ON c.Customerid = i.Customerid
+WHERE c.Country = 'Brazil';
+
+/* Locate all invoices in Brazil between the start of 2010 and end of 2012. */
+SELECT
+i.invoiceid,
+i.InvoiceDate,
+i.BillingCountry
+FROM invoices i
+WHERE i.InvoiceDate BETWEEN '2010-01-01' AND '2012-12-31' AND
+i.BillingCountry = 'Brazil';
+
+/* Show the Employees who are Sales Agents. */
+SELECT 
+e.Employeeid, 
+e.FirstName,
+e.LastName, 
+e.Title
+FROM employees e
+WHERE e.Title LIKE '%sales support agent%';
+
+/* Provide billing invoices from all customers with over 6 outstanding invoices. Create a case with a label that flags their account. */
+SELECT 
+i.invoiceid,
+i.InvoiceDate,
+i.BillingCountry,
+c.Customerid,
+c.FirstName,
+c.LastName
+FROM customers c
+INNER JOIN invoices i
+ON c.Customerid = i.Customerid
+HAVING COUNT(i.invoiceid > 6)
+ORDER BY i.BillingCountry;
+
+/* Provide a query that shows the invoices associated with each sales agent. The resulting table should include the Sales Agent's full name. */
+SELECT i.invoiceid,
+i.Total,
+i.InvoiceDate, 
+i.BillingCountry,
+c.FirstName,
+c.LastName,
+c.Country, 
+e.Employeeid, 
+e.FirstName, 
+e.LastName, 
+e.Title
+FROM customers c
+/* Inner joining my employees table so employeeid is a direct match to supportrepid on the customers table. */
+INNER JOIN employees e
+ON c.SupportRepid = e.Employeeid
+/* Inner joining my invoices table so the customerid there matches the customerid in customers table, allowing us to pinpoint which sales rep is handling which invoice id. */
+INNER JOIN invoices i
+ON i.customerid = c.Customerid;
+
+/* How many innvoices were there in 2009? */
+SELECT COUNT(i.invoiceid)
+FROM invoices i
+WHERE i.InvoiceDate LIKE '%2009%';
+
+/* SELECT the artist with ID '1' whose best album is 'Let There Be Rock', and then list the tracks. */
+SELECT 
+a.artistid, 
+a.name as artist_name, 
+alb.albumid, 
+alb.title AS album_title,
+t.name AS track_name
+FROM artists a
+/* Inner joining artistid table to the albumid table via same id numbers. */
+INNER JOIN albums alb
+ON a.artistid = alb.artistid
+/* Inner joining albumid table to the trackid table via same id numbers to get only the tracks from that specific album. */
+INNER JOIN tracks t
+ON t.albumid = alb.albumid
+WHERE a.artistid =1 AND alb.title LIKE '%let there be rock%';
+
+/* What are the total sales for 2009? */
+SELECT 
+SUM(i.Total) AS total_sales
+FROM invoices i
+WHERE i.InvoiceDate LIKE '%2009%';
+
+/* Show the total sales made by each sales agent. */
+SELECT
+ROUND(SUM(i.Total), 2) AS Total,
+e.employeeid,
+e.FirstName,
+e.LastName
+FROM invoices i
+/* Inner joining my customerid to invoices customerid on the invoices table for a direct match. */
+INNER JOIN customers c
+ON i.customerid = c.customerid
+/* Inner joining my employeeid from the employees table to the supportrepid column on the customers table to match my employees to the invoice numbers of the customers. */
+INNER JOIN employees e
+ON c.supportrepid = e.employeeid
+GROUP BY e.employeeid;
+
+/* Which sales agent made the most money in 2009? */
+SELECT
+ROUND(SUM(i.Total), 2) AS Total,
+e.employeeid,
+e.FirstName,
+e.LastName
+FROM invoices i
+/* Inner joining my customerid to invoices customerid on the invoices table for a direct match. */
+INNER JOIN customers c
+ON i.customerid = c.customerid
+/* Inner joining my employeeid from the employees table to the supportrepid column on the customers table to match my employees to the invoice numbers of the customers. */
+INNER JOIN employees e
+ON c.supportrepid = e.employeeid
+WHERE i.InvoiceDate LIKE '%2009%'
+GROUP BY e.employeeid
+ORDER BY Total desc
+LIMIT 1;
+
+/* Write a query that includes the purchased track name and artist with each invoice line ID. */
+SELECT 
+a.name AS artist,
+alb.Title,
+t.Trackid AS track_id,
+t.name as track_name, 
+i.invoiceid AS invoice_ID
+FROM invoice_items ii
+INNER JOIN tracks t
+ON ii.Trackid = t.Trackid
+INNER JOIN invoices i
+ON ii.invoicelineid = i.invoiceid
+INNER JOIN albums alb
+ON t.albumid = alb.albumid
+INNER JOIN artists a
+ON alb.artistid = a.artistid
+ORDER by artist;
