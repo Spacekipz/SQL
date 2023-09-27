@@ -281,4 +281,13 @@ ON Travel_Reimbursements.employee_ID = Total_Cost.employee_ID
 GROUP BY Travel_Reimbursements.employee_ID
 HAVING SUM(Total_Cost.total) BETWEEN 250 AND 400;
 
+/* Select all airfare tickets that exceed the average(ticket_cost)? */
+/* I solve this by using a subquery. */
+SELECT employee_ID,
+airline,
+ticket_cost,
+destination
+FROM Travel_Reimbursements tr
+WHERE ticket_cost > (SELECT(AVG(ticket_cost)) 
+FROM Travel_Reimbursements tr);
 
