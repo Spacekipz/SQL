@@ -376,3 +376,34 @@ INNER JOIN PSY2000_Course psy
 ON sr.gatorlink_ID = psy.gatorlink_ID
 WHERE psy.grade BETWEEN 94 AND 100
 ORDER BY sr.gatorlink_ID;
+
+/*Show the top 5 students who received ten points higher than the average grade in PSY2000? Include their student email as well.*/
+/* Solving this with an subquery and using an inner join for a direct match for my fields. */
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name,
+IFNULL(psy.grade, 0) AS psy2000_grade
+FROM Student_Records sr
+LEFT JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+GROUP BY sr.gatorlink_ID
+HAVING psy2000_grade AND psy2000_grade != ''  >= (SELECT AVG(psy.grade)+10
+FROM PSY2000_Course psy)
+ORDER by psy.grade desc
+LIMIT 5;
+
+/*Show the top 3 students who received  higher than the average grade in FIN2002? Include their student email as well.*/
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name,
+IFNULL(fin.grade, 0) AS fin2002_grade
+FROM Student_Records sr
+LEFT JOIN FIN2002_Course fin
+ON sr.gatorlink_ID = fin.gatorlink_ID
+GROUP BY sr.gatorlink_ID
+HAVING fin2002_grade AND fin2002_grade !=''   >= (SELECT AVG(fin2002_grade) 
+FROM FIN2002_Course fin)
+ORDER by fin2002_grade desc
+LIMIT 3;
+
+
