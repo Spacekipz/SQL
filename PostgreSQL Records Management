@@ -406,4 +406,40 @@ FROM FIN2002_Course fin)
 ORDER by fin2002_grade desc
 LIMIT 3;
 
+/* Show the top 3 students who received the highest 'A' grades for FIN2002 and PSY2000. Include their student email as well. */
+/* To solve this, I will be using left joins, and filtering out the nulls/0 for grades on the tables and using two subqueries for the criteria. */
+SELECT
+sr.gatorlink_ID,
+sr.first_name,
+sr.last_name,
+sr.email,
+psy.grade AS psy2000_grade,
+COALESCE(fin.grade, 0) AS fin20002_grade
+FROM Student_Records sr
+LEFT JOIN PSY2000_Course psy
+ON sr.gatorlink_ID = psy.gatorlink_ID
+LEFT JOIN FIN2002_Course fin
+ON sr.gatorlink_ID = fin.gatorlink_ID
+GROUP BY sr.gatorlink_ID
+HAVING psy.grade >= (SELECT psy.grade 
+FROM PSY2000_Course
+WHERE psy.grade BETWEEN 94 AND 100)
+OR fin.grade >= (SELECT fin.grade
+FROM FIN2002_Course
+WHERE fin.grade BETWEEN 94 and 100);
+
+/* Create a ranking system for the grades in PSY2000 ranging between 70-100, and include student IDs, names, and email. */
+/* I make my rank column using the ROW_Number() and by inner joining my SR and PSY tables together. */
+SELECT sr.gatorlink_ID,
+sr.first_name,
+sr.last_name,
+sr.email,
+psy.grade,
+ROW_NUMBER()
+    OVER(ORDER BY psy.grade DESC) grade_rank
+FROM STUDENT_RECORDS sr
+INNER JOIN PSY2000_Course psy
+ON psy.gatorlink_ID = sr.gatorlink_ID
+AND psy.grade BETWEEN 70 AND 100;
+
 
