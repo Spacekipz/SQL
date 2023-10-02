@@ -282,3 +282,11 @@ ON er.employee_ID = js.employee_ID
 GROUP BY er.employee_ID
 HAVING COALESCE(am.tui_amt, 0) + COALESCE(jj.tui_amt, 0) + COALESCE(juljul.tui_amt, 0) + COALESCE(js.tui_amt, 0)  >= 1000 AND
 COALESCE(am.credits, 0) + COALESCE(jj.credits, 0) + COALESCE(juljul.credits, 0) + COALESCE(js.credits, 0) >=5;
+
+/* Rank the top reimbursements for June_JulyTR? Include the employee ID, name, and price. */
+SELECT j.employee_ID,
+j.name,
+j.tui_amt AS reimbursed,
+RANK () OVER (ORDER BY tui_amt desc) AS rank
+FROM June_JulyTR j
+GROUP BY j.employee_ID;
