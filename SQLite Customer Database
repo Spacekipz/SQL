@@ -179,6 +179,55 @@ OR location LIKE '%TX%'
 GROUP BY location
 HAVING total_purchase >= 1200;
 
+/* Create a query that shows items from February that were going for $100 and up? */
+SELECT fs.orderID,
+fs.Product,
+fs.price AS fs_price,
+fs.quantity
+FROM FebSales fs
+GROUP BY fs.orderID
+HAVING fs.price IN (
+    SELECT fs.price 
+        FROM FebSales
+            WHERE fs.price >=100);
+            
+/* Create a query that shows monitors from February that were going for $300 and up? */
+/* Using multiple subqueries in this query to filter my data search. */
+SELECT fs.orderID,
+fs.Product,
+fs.price AS fs_price,
+fs.quantity
+FROM FebSales fs
+GROUP BY fs.orderID
+HAVING fs.price IN (
+    SELECT fs.price 
+        FROM FebSales
+            WHERE fs.price >=300 AND 
+                (SELECT fs.Product
+                    FROM FebSales
+                        WHERE fs.Product LIKE '%monitor%'));
+                        
+/* Create a query that shows laptops from April that were going for $1000 and up? */
+/* Using subqueries to filter my data search */
+SELECT apr.orderID,
+apr.Product,
+apr.price AS apr_price,
+apr.quantity
+FROM AprSales apr
+GROUP BY apr.orderID
+HAVING apr.price IN (
+    SELECT apr.price 
+        FROM AprSales
+            WHERE apr.price >=1000 AND 
+                (SELECT apr.Product
+                    FROM AprSales
+                        WHERE apr.Product LIKE '%laptop%'));
+                                
+
+
+
+
+
 
 
 
