@@ -1,0 +1,76 @@
+/* Travel Reimbursements - Accounts Payable Project - 2022. Creating my mothly travel reimbursement tables below and importing my Excel spreadsheets as CSV files. */
+/* Create December 2022 Travel Reimbursement table in SQLite3 */
+CREATE TABLE BIT_DB.December2022_Travel_Reimb (
+employeeID INTEGER,
+name VARCHAR,
+unionID CHAR(4),
+reimbursed VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER
+);
+/* Hint for viewers: ticket stands for airfare ticket; fee stands for Corporate Travel Management (CTM) agent processing fee; total is the ticket and fee combined. */
+
+/* Function below used for deleting table if edits needed, then reuploaded by creating table again */
+DROP TABLE IF EXISTS BIT_DB.December2022_Travel_Reimb; 
+
+/* Testing my created table and imported csv file. */
+SELECT * FROM December2022_Travel_Reimb;
+
+/* Travel Reimbursements - Accounts Payable Project - 2022. Creating my mothly travel reimbursement tables below and importing my Excel spreadsheets as CSV files. */
+/* Create April 2022 Travel Reimbursement table in SQLite3 */
+CREATE TABLE BIT_DB.April2022_Travel_Reimb (
+employeeID INTEGER,
+name VARCHAR,
+unionID CHAR(4),
+reimbursed VARCHAR,
+destination_city VARCHAR,
+travel_date VARCHAR, 
+acctcode VARCHAR,
+conference VARCHAR,
+ticket INTEGER
+);
+/* Hint for viewers: ticket stands for airfare ticket; fee stands for Corporate Travel Management (CTM) agent processing fee; total is the ticket and fee combined. */
+
+/* Testing my created table and imported csv file. */
+SELECT * FROM April2022_Travel_Reimb;
+
+/* Function below used for deleting table if edits needed, then reuploaded by creating table again */
+DROP TABLE IF EXISTS BIT_DB.April2022_Travel_Reimb; 
+
+/* Creating my December 2022 Employee records table and importing csv file. */
+CREATE TABLE December_Employee_Records (
+employeeID INTEGER,
+name VARCHAR,
+email VARCHAR,
+unionn CHAR(4),
+unionID INTEGER
+);
+
+/*Testing my imported csv to make sure it imported correctly. */
+SELECT * FROM December_Employee_Records;
+
+/* Creating my April 2022 Employee records table and importing csv file. */
+CREATE TABLE April_Employee_Records (
+employeeID INTEGER,
+name VARCHAR,
+email VARCHAR,
+unionn CHAR(4),
+unionID INTEGER
+);
+
+/*Testing my imported csv to make sure it imported correctly. */
+SELECT * FROM April_Employee_Records;
+
+/* Creating my union rep table and importing csv. */
+CREATE TABLE union_rep (
+unionID INTEGER,
+unionname CHAR(4),
+rep_name VARCHAR,
+rep_email VARCHAR
+);
+
+/*Testing my imported csv to make sure it imported correctly. */
+SELECT * FROM union_rep;
