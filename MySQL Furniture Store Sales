@@ -1,5 +1,4 @@
 /* Creating my furniture store sales table below. */
-
 CREATE TABLE sales(
   ID INTEGER  NOT NULL PRIMARY KEY
 , transaction_date TEXT
@@ -120,38 +119,31 @@ INSERT INTO sales(transaction_date,product,price,payment_type,name,city,state,co
 
 
 /* What is the total profit in sales from each country? */
-
 SELECT country, SUM(price) AS total_profit FROM sales
 GROUP BY country;
 
 /* What is the total profit in sales from the United States? */
-
 SELECT country, SUM(price) AS total_profit FROM sales
 WHERE country LIKE '%united states%';
 
 /* What is the average price of chairs, beds, and couches? */
-
 SELECT product, ROUND(AVG(price)) FROM sales
 GROUP BY product;
 
 /* What is the sum price of chairs, couches, and beds? */
-
 SELECT product, ROUND(SUM(price)) FROM sales 
 GROUP BY product;
 
 /* What is the minimum chair, bed, and couch price? */
-
 SELECT product, ROUND(MIN(price)) FROM sales
 GROUP by product;
 
 /* What is the highest price for a bed, couch, and chair at this store? */
-
 SELECT product, ROUND(MAX(price)) 
 FROM sales
 GROUP by product;
 
 /* What customer payments from the USA are using Mastercard? */
-
 SELECT name, payment_type, country 
 FROM sales
 GROUP BY name
@@ -159,7 +151,6 @@ HAVING payment_type LIKE '%mastercard%'
     AND country LIKE '%united states%';
     
 /* What customer payments from the USA are using Visa? */
-
 SELECT name, payment_type, country
 FROM sales
 GROUP BY name
@@ -168,14 +159,12 @@ HAVING payment_type LIKE '%visa%'
     
     
 /* What customers are paying from Canada? */
-
 SELECT name,country
 FROM sales
 GROUP by name
 HAVING country LIKE '%canada%';
 
 /* List the countries and their total sales for all countries >=$5000 */
-
 SELECT SUM(price), country,
 CASE
     WHEN SUM(price) >=5000 
@@ -200,27 +189,52 @@ FROM sales
 GROUP BY country;
 
 /* How many chairs did the United States sell? */
-
 SELECT COUNT(*) from sales WHERE country LIKE '%united states%' AND product LIKE '%chair%';
 
 /* How many sales from the United Kingdom were there? */
-
 SELECT COUNT (*) from sales WHERE country LIKE '%united kingdom%'; 
 
 /* How many beds and chairs were sold in Switzerland? */
-
 SELECT COUNT (*) from sales WHERE country LIKE '%switzerland%' AND product LIKE '%chair%' OR '%bed%'; 
 
 /* Select all the sales information on file for Switzerland. */
+SELECT *FROM sales WHERE country LIKE "switzerland";
 
-SELECT *FROM sales WHERE country LIKE "switzerland"
+/* Create a view of all chair sales from Denmark. 
+To do this, I will create my view statement and filter the data. */
+CREATE VIEW denmark_sales AS
+SELECT product, price, country
+FROM sales
+WHERE country LIKE '%Denmark%' AND product LIKE '%chair%';
+/* Querying my newly created view below. */
+SELECT * FROM [denmark_sales];
 
+/* Create a view of the SUM of all chair sales in Denmark. */
+CREATE VIEW denmark_chair_sales AS
+SELECT ROUND(SUM(price), 1)
+FROM sales
+WHERE product LIKE '%chair%' AND country LIKE '%Denmark%';
+/* Querying my newly created view below. */
+SELECT * FROM [denmark_chair_sales];
 
+/* Which countries are we selling to? Don't include duplicate country names. */
+SELECT DISTINCT s.country
+FROM sales s;
 
+/* Create a view that shows the sales location to all cities in the USA. */
+CREATE VIEW city_view AS
+SELECT DISTINCT s.city AS us_city_sales
+FROM sales s
+WHERE s.country = 'United states';
+/* Querying my newly created view below. */
+SELECT * FROM [city_view];
 
-
-    
-
-
-
-
+/* Provide the names, country, and amount spent of all customers from USA in the cities of Honolulu and Coral Gables.*/
+SELECT s.name,
+s.country,
+s.city,
+s.price
+FROM sales s
+WHERE s.country = ('United states') AND (s.city = 'Honolulu' OR s.city = 'Coral Gables')
+GROUP BY name
+ORDER BY name asc;
