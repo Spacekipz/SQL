@@ -74,3 +74,136 @@ rep_email VARCHAR
 
 /*Testing my imported csv to make sure it imported correctly. */
 SELECT * FROM union_rep;
+
+/* Create an index to speed up the search queries of the data from the tables. */
+CREATE INDEX dec_sales 
+ON December2022_Travel_Reimb (
+employeeID,
+name,
+unionID,
+reimbursed,
+destination_city,
+travel_date, 
+acctcode,
+conference,
+ticket);
+
+CREATE INDEX apr_sales 
+ON April2022_Travel_Reimb (
+employeeID,
+name,
+unionID,
+reimbursed,
+destination_city,
+travel_date, 
+acctcode,
+conference,
+ticket);
+
+/* Combine both the December and April 2022 travel reimbursement tables. */
+/* To solve this, I will UNION ALL the data together. */
+SELECT * FROM December2022_Travel_Reimb
+UNION ALL
+SELECT * FROM April2022_Travel_Reimb
+ORDER BY employeeID;
+
+/* Remove employee 281557, Whitney Ellersick from the December 2022 travel reimbursement table. */
+DELETE FROM December2022_Travel_Reimb
+WHERE (employeeID = 281557);
+/* Remove employee 985837, Kate Wilkinson from the April2022_Travel_Reimb table; They are both duplicate reimbursements. Notified accounts payable... */
+DELETE FROM April2022_Travel_Reimb
+WHERE rowid = 63 AND 64;
+/* Provide a query that serarches for employees with multiple reimbursements totaling over $200. */
+/* To start, I will create a CTE and UNION all my reimbursements to make a single CTE out of the two travel reimbursement tables. */
+WITH unioned_data as (
+   SELECT
+     employeeid,
+     reimbursed
+   FROM April2022_Travel_Reimb
+ 
+    UNION ALL
+
+    SELECT
+     employeeid,
+     reimbursed
+   FROM December2022_Travel_Reimb
+)
+/* Calling my cte to perform aggregates on the data. */
+SELECT
+   employeeid,
+   COUNT(*) as total_times_reimb,
+   SUM(reimbursed) as total_reimbursed
+FROM unioned_data
+GROUP BY employeeID
+HAVING COUNT(*) > 1
+ORDER BY employeeID;
+
+/* What is the total anount reimbursed, the average, min/max, and how many employees were reimbursed for December AND April 2022?
+/* To start, I will create a CTE and UNION all my reimbursements to make a single CTE out of the two travel reimbursement tables. */
+WITH unioned_data as (
+   SELECT
+     employeeid,
+     reimbursed
+   FROM April2022_Travel_Reimb
+ 
+    UNION ALL
+
+    SELECT
+     employeeid,
+     reimbursed
+   FROM December2022_Travel_Reimb
+)
+/* Calling my cte to perform aggregates on the data. */
+SELECT
+     COUNT(*) as total_reimbursements,
+   SUM(reimbursed),
+   MIN(reimbursed),
+   MAX(reimbursed),
+   AVG(reimbursed)
+FROM unioned_data;
+
+/* Show which union each employee is a part of a long with their union rep, and email. Then, limk all of the data to the corresponding employee records for the month of December. */
+/* To solve this, I will be joining multiple tables together on shared identifiers. */
+SELECT der.employeeID,
+der.name, 
+COALESCE(NULLIF(der.email,''), 'NO EMAIL PROVIDED') AS email,
+SUM(dtr.reimbursed) AS total_reimbursed,
+COALESCE(NULLIF(der.unionn,''), 'No Union') AS union_name, 
+COALESCE(NULLIF(der.unionID,''), 'N/A') AS union_ID,
+ur.unionname,
+ur.rep_name,
+ur.rep_email
+FROM December_Employee_Records der
+/*Using left joins because some fields may be null or empty, and that's OK. */
+LEFT JOIN December2022_Travel_Reimb dtr
+ON der.employeeID = dtr.employeeID
+LEFT JOIN union_rep ur
+ON der.unionID = ur.unionID
+GROUP BY der.employeeID;
+
+/* Select ALL employees and their email, who were reimbursed over $200 and traveled to FL, DC, or CA in the April2022_Travel_Reimb table. Include their union rep and their contact info.  */
+SELECT aer.employeeID,
+aer.name, 
+COALESCE(NULLIF(aer.email,''), 'NO EMAIL PROVIDED') AS email,
+atr.reimbursed,
+atr.travel_date,
+atr.destination_city,
+COALESCE(NULLIF(ur.unionID,''), 'N/A') AS unionID,
+COALESCE(NULLIF(ur.unionname,''), 'NOT IN UNION') AS union_name,
+COALESCE(NULLIF(ur.rep_name,''), 'N/A') AS rep_name,
+COALESCE(NULLIF(ur.rep_email,''), 'N/A') AS rep_email
+FROM April_Employee_Records aer
+LEFT JOIN union_rep ur
+ON aer.unionID = ur.unionID
+LEFT JOIN April2022_Travel_Reimb atr
+ON aer.employeeID = atr.employeeID
+WHERE atr.destination_city LIKE '%FL' 
+    OR (atr.destination_city LIKE '%CA')
+    OR (atr.destination_city LIKE '%DC')
+        AND (atr.reimbursed > 300)
+
+/* Select ALL employees who were reimbursed under $700 and traveled from 05/01-10/28/2023? */
+/* Create a windows function */
+/* Create subqueries */
+/* Create views */
+/* Create aggregates/filters involving emails, cities, and reimbursement amounts. */
