@@ -204,6 +204,9 @@ WHERE atr.destination_city LIKE '%FL'
 
 /* Select ALL employees who were reimbursed under $700 and traveled from 05/01-10/28/2023? */
 /* Create a windows function */
+/* Create query using SQL EXISTS operator and HAVING */
+/* Create query using ANY and ALL operators */
+/* Create a stored procedure
 /* Create subqueries */
 /* Create views */
 /* Create aggregates/filters involving emails, cities, and reimbursement amounts. */
