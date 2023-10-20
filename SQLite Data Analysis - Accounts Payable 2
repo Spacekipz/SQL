@@ -200,11 +200,74 @@ ON aer.employeeID = atr.employeeID
 WHERE atr.destination_city LIKE '%FL' 
     OR (atr.destination_city LIKE '%CA')
     OR (atr.destination_city LIKE '%DC')
-        AND (atr.reimbursed > 300)
+        AND (atr.reimbursed > 300);
 
-/* Select ALL employees who were reimbursed under $700 and traveled from 05/01-10/28/2023? */
+/* Select ALL employees who were reimbursed under $900 and traveled from 05/01-10/28/2022? Rank(function) the reimbursements from greatest to least. Only use the December and April 2022 travel reimbursements for this exercise. */
+/* First, I will create a UNION ALL to combine both the Aprill2022_Travel_Reimb and December2022_Travel_Reimb tables. */
+WITH unioned_data AS (
+   SELECT
+     employeeid,
+     reimbursed,
+     destination_city,
+     travel_date
+   FROM April2022_Travel_Reimb
+ 
+    UNION ALL
+
+    SELECT
+     employeeid,
+     reimbursed,
+     destination_city,
+     travel_date
+   FROM December2022_Travel_Reimb
+)
+SELECT employeeid,
+destination_city,
+travel_date,
+reimbursed,
+/* Rank windows function for reimbursements below... */
+RANK() OVER (
+    ORDER BY reimbursed desc) AS top_reimbursements
+FROM unioned_data
+/* Filtering by travel dates and reimbursement amount by using two subqueries. */
+WHERE reimbursed < (
+    SELECT reimbursed
+    FROM unioned_data
+    WHERE reimbursed < 900 AND
+        (SELECT travel_date
+         FROM unioned_data
+          WHERE travel_date BETWEEN '05/01/2022' AND '10/28/2022'))
+LIMIT 25;
+
 /* Create a windows function */
 /* Create query using SQL EXISTS operator and HAVING */
+/* Do any reimbursements EXIST for Los Angeles, CA for $300 or more? Include their union group. Also, the training dates must be during the month of January 2023. */
+SELECT apr.employeeID, 
+apr.name,
+apr.reimbursed,
+apr.destination_city,
+apr.travel_date,
+COALESCE(arecords.unionID, 'N/A') AS union_ID,
+IFNULL(unionname, 'not enrolled') AS union_name
+FROM April2022_Travel_Reimb apr
+/* Left joining my tables together below. */
+LEFT JOIN April_Employee_Records arecords
+ON apr.employeeID = arecords.employeeID
+LEFT JOIN union_rep urep
+ON arecords.unionID = urep.unionID
+/* Using EXIST operator in subquery to filter results. */
+WHERE EXISTS 
+    (SELECT apr.reimbursed FROM April2022_Travel_Reimb apr WHERE apr.reimbursed >= 300) AND
+    EXISTS (SELECT apr.destination_city FROM April2022_Travel_Reimb apr WHERE apr.destination_city LIKE '%Los Angeles, CA%') AND
+    EXISTS (SELECT apr.travel_date FROM April2022_Travel_Reimb apr WHERE apr.travel_date BETWEEN '01/01/2023' AND '01/31/2023')
+/* The above query filters for my desired results. I will add a HAVIMNG clause below to search now for employees with MULTIPLE reimbursements who meet the filtered parameters. */
+GROUP BY apr.employeeID
+HAVING COUNT(apr.employeeID) >=2
+ORDER BY apr.reimbursed
+
+
+
+
 /* Create query using ANY and ALL operators */
 /* Create a stored procedure
 /* Create subqueries */
