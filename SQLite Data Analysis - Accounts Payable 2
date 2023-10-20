@@ -239,16 +239,18 @@ WHERE reimbursed < (
           WHERE travel_date BETWEEN '05/01/2022' AND '10/28/2022'))
 LIMIT 25;
 
-/* Create a windows function */
-/* Create query using SQL EXISTS operator and HAVING */
 /* Do any reimbursements EXIST for Los Angeles, CA for $300 or more? Include their union group. Also, the training dates must be during the month of January 2023. */
 SELECT apr.employeeID, 
 apr.name,
 apr.reimbursed,
 apr.destination_city,
 apr.travel_date,
+/*Filtering out blanks and NULL below. */
 COALESCE(arecords.unionID, 'N/A') AS union_ID,
-IFNULL(unionname, 'not enrolled') AS union_name
+IFNULL(unionname, 'not enrolled') AS union_name,
+/*Ranking my reimbursements from greatest to least with RANK windows function. */
+RANK() OVER (
+    ORDER BY apr.reimbursed desc) AS top_reimbursements
 FROM April2022_Travel_Reimb apr
 /* Left joining my tables together below. */
 LEFT JOIN April_Employee_Records arecords
@@ -259,17 +261,54 @@ ON arecords.unionID = urep.unionID
 WHERE EXISTS 
     (SELECT apr.reimbursed FROM April2022_Travel_Reimb apr WHERE apr.reimbursed >= 300) AND
     EXISTS (SELECT apr.destination_city FROM April2022_Travel_Reimb apr WHERE apr.destination_city LIKE '%Los Angeles, CA%') AND
-    EXISTS (SELECT apr.travel_date FROM April2022_Travel_Reimb apr WHERE apr.travel_date BETWEEN '01/01/2023' AND '01/31/2023')
-/* The above query filters for my desired results. I will add a HAVIMNG clause below to search now for employees with MULTIPLE reimbursements who meet the filtered parameters. */
-GROUP BY apr.employeeID
-HAVING COUNT(apr.employeeID) >=2
-ORDER BY apr.reimbursed
+    EXISTS (SELECT apr.travel_date FROM April2022_Travel_Reimb apr WHERE apr.travel_date BETWEEN '01/01/2023' AND '01/31/2023');
 
+/* Create a VIEW that reflects the most up to date edits of ALL travel reimbursement tables. */
+CREATE VIEW SelectAllReimbursements AS
+WITH unioned_data AS (
+SELECT apr.employeeID,
+apr.name,
+apr.reimbursed,
+apr.destination_city,
+apr.travel_date
+FROM April2022_Travel_Reimb apr
+/* Combining my nearly identical December2022 and April2022 travel reimbursement tables with UNION ALL. */
+UNION ALL
 
+SELECT dec.employeeID,
+dec.name,
+dec.reimbursed,
+dec.destination_city,
+dec.travel_date
+FROM December2022_Travel_Reimb dec
+)
+SELECT ud.employeeID,
+ud.name,
+ud.reimbursed,
+ud.destination_city,
+ud.travel_date
+FROM unioned_data ud;
+/* Confirming my VIEW works below! */
+SELECT * FROM SelectAllReimbursements;
 
-
-/* Create query using ANY and ALL operators */
-/* Create a stored procedure
-/* Create subqueries */
-/* Create views */
-/* Create aggregates/filters involving emails, cities, and reimbursement amounts. */
+/* Create query showing all travel reimbursements.
+Exclude trainings located in California amd Washington, DC, and provide employee emails with the reimbursements.*/
+SELECT 
+RANK () OVER (
+    ORDER BY dec.reimbursed desc) AS top_reimbursements,
+dec.employeeID,
+dec.name,
+dec.reimbursed,
+IFNULL(drecords.email, 'N/A') AS employee_email,
+IFNULL(urep.unionname, 'Not in Union') AS union_group,
+dec.destination_city,
+dec.travel_date
+FROM December2022_Travel_Reimb dec
+LEFT JOIN December_Employee_Records drecords
+ON dec.employeeID = drecords.employeeID
+LEFT JOIN union_rep urep
+ON dec.unionID = urep.unionID
+WHERE dec.reimbursed IN
+    (SELECT dec.reimbursed
+    FROM December2022_Travel_Reimb dec
+    WHERE dec.destination_city NOT LIKE ('%CA%') AND dec.destination_city NOT LIKE ('%Washington, DC%'))
