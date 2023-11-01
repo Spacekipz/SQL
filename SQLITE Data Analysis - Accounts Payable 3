@@ -1,0 +1,264 @@
+/* Accounting - Travel Reimbursements from May - August, 2023. */
+/* Creating August 2023 travel reimb table below. */
+CREATE TABLE BIT_DB.August2023_Travel_Reimb (
+employee_ID INTEGER,
+name VARCHAR,
+destination VARCHAR,
+travel_date VARCHAR,
+account_code VARCHAR,
+confirmation_number VARCHAR,
+amount_reimbursed VARCHAR
+);
+
+/* Altering an employee total below. */
+ALTER TABLE August2023_Travel_Reimb 
+RENAME COLUMN 'travel_date' TO travel_dates;
+DELETE FROM August2023_Travel_Reimb
+WHERE rowid BETWEEN 39 AND 45;
+
+/* Confirming table imported correctly and alteration was made. */
+SELECT * FROM August2023_Travel_Reimb;
+
+/* Creating July 2023 travel reimb table below. */
+CREATE TABLE BIT_DB.July2023_Travel_Reimb (
+employee_ID INTEGER,
+name VARCHAR,
+destination VARCHAR,
+travel_dates VARCHAR,
+account_code VARCHAR,
+confirmation_number VARCHAR,
+amount_reimbursed VARCHAR
+);
+
+/* Verifying new table created and making edits below. */
+SELECT * FROM July2023_Travel_Reimb;
+DELETE FROM July2023_Travel_Reimb
+WHERE rowid BETWEEN 71 AND 77;
+
+/* Creating June 2023 travel reimb table below. */
+CREATE TABLE BIT_DB.June2023_Travel_Reimb (
+employee_ID INTEGER,
+name VARCHAR,
+destination VARCHAR,
+travel_dates VARCHAR,
+account_code VARCHAR,
+confirmation_number VARCHAR,
+amount_reimbursed VARCHAR
+);
+
+/* Verying table created and imported correctly + making edits below. */
+SELECT * FROM June2023_Travel_Reimb;
+DELETE FROM June2023_Travel_Reimb
+WHERE rowid BETWEEN 106 AND 112;
+
+/* Creating May 2023 travel reimb table below. */
+CREATE TABLE BIT_DB.May2023_Travel_Reimb (
+employee_ID INTEGER,
+name VARCHAR,
+destination VARCHAR,
+travel_dates VARCHAR,
+account_code VARCHAR,
+confirmation_number VARCHAR,
+amount_reimbursed VARCHAR
+);
+
+
+/* Deleting those pesky blank rows imported from my CSV.... */
+DELETE FROM May2023_Travel_Reimb
+WHERE rowid BETWEEN 165 AND 171;
+DELETE FROM May2023_Travel_Reimb
+WHERE rowid = 6;
+DELETE FROM May2023_Travel_Reimb
+WHERE rowid = 140;
+
+/*Updating several rows in my May2023_Travel_reimb table below. */
+UPDATE May2023_Travel_Reimb
+SET amount_reimbursed = 897.42
+WHERE employee_ID = 018760; 
+UPDATE May2023_Travel_Reimb
+SET amount_reimbursed = 1066.65
+WHERE employee_ID = 025082; 
+UPDATE May2023_Travel_Reimb
+SET amount_reimbursed = 1011.85
+WHERE rowid = 3;
+UPDATE May2023_Travel_Reimb
+SET amount_reimbursed = 248.77
+WHERE rowid = 4; 
+
+/* Verifying rows deleted and updates below. */
+SELECT * FROM May2023_Travel_Reimb;
+
+/* Creating a CTE that shows employee reimbursements with count function of times reimbursed, with case stating their reimbursement status. */
+WITH May_Reimbursements_CTE AS (
+SELECT employee_ID,
+name,
+/* Changing my NULLS and blanks in the amount_reimbursed column to zero dollar amounts. */
+COALESCE(NULLIF(amount_reimbursed,''),'0') AS amount_reimbursed,
+/* Creating a windows function to calculate if employees received 2 or more travel reimbursements in one month. */
+COUNT(*) OVER (PARTITION BY employee_ID) AS times_reimbursed,
+/* Creating a case statement to further explain employees with 0, 1, or more than 1 reimbursement for the month. */
+CASE WHEN COUNT(*) OVER (PARTITION BY employee_ID) >= 2
+        THEN 'Employee reimbursed more than once.'
+    WHEN COUNT(*) OVER (PARTITION BY employee_ID) = 1
+        THEN 'Employee was reimbursed one time.'
+    ELSE 'Employee not reimbursed.'
+END AS reimbursement_status
+FROM May2023_Travel_Reimb
+)
+/* Using my CTE to provide HR Professional Growth team a table that shows employees with multiple travel reimbursements for the month of May. */
+SELECT employee_ID,
+name,
+amount_reimbursed,
+times_reimbursed
+FROM May_Reimbursements_CTE
+WHERE times_reimbursed >=2
+ORDER BY employee_ID;
+
+/* Usimng my CTE to combine totals of employees with more than 1 travel reimbursement for the month of May. 
+For exampple, HR Professional Growth wants to know the TOTAL AMOUNT Howard Branic received in May. */
+/* Calling on my CTE below. */
+WITH May_Reimbursements_CTE AS (
+SELECT employee_ID,
+name,
+/* Changing my NULLS and blanks in the amount_reimbursed column to zero dollar amounts. */
+COALESCE(NULLIF(amount_reimbursed,''),'0') AS amount_reimbursed,
+/* Creating a windows function to calculate if employees received 2 or more travel reimbursements in one month. */
+COUNT(*) OVER (PARTITION BY employee_ID) AS times_reimbursed,
+/* Creating a case statement to further explain employees with 0, 1, or more than 1 reimbursement for the month. */
+CASE WHEN COUNT(*) OVER (PARTITION BY employee_ID) >= 2
+        THEN 'Employee reimbursed more than once.'
+    WHEN COUNT(*) OVER (PARTITION BY employee_ID) = 1
+        THEN 'Employee was reimbursed one time.'
+    ELSE 'Employee not reimbursed.'
+END AS reimbursement_status
+FROM May2023_Travel_Reimb
+)
+SELECT employee_ID,
+name,
+SUM(TRIM (REPLACE (amount_reimbursed, '$', '')) + 0.0) as amount_reimbursed,
+times_reimbursed
+FROM May_Reimbursements_CTE
+WHERE times_reimbursed >=2
+GROUP BY employee_ID 
+ORDER BY employee_ID;
+
+/* HR Professional Growth wants to know the AVG, SUM, MIN, and MAX of all May 2023 travel reimbursements. */
+SELECT
+/* Filtering out '$' sign and blanks for aggregating data. */ 
+AVG(TRIM (REPLACE (amount_reimbursed, '$', '')) + 0.0) AS average_reimbursement,
+MIN(TRIM (REPLACE (amount_reimbursed, '$', '')) + 0.0) AS min_reimbursement,
+MAX(TRIM (REPLACE (amount_reimbursed, '$', '')) + 0.0) AS max_reimbursement,
+SUM(TRIM (REPLACE (amount_reimbursed, '$', '')) + 0.0) as amount_reimbursed
+FROM MAY2023_Travel_Reimb;
+
+/* Create a view that shows the most up-to-date display of ALL the travel reimbursements from May-August, 2023. */
+/* Creating this by UNION ALL'ing my tables together. */
+CREATE VIEW SelectMay_August2023_Reimb AS
+WITH unioned_totals AS (
+SELECT aug.employee_ID,
+aug.name,
+aug.destination,
+aug.travel_dates,
+aug.account_code,
+aug.confirmation_number,
+aug.amount_reimbursed
+FROM August2023_Travel_Reimb aug
+
+UNION ALL 
+
+SELECT jul.employee_ID,
+jul.name,
+jul.destination,
+jul.travel_dates,
+jul.account_code,
+jul.confirmation_number,
+jul.amount_reimbursed
+FROM July2023_Travel_Reimb jul
+
+UNION ALL 
+
+SELECT j.employee_ID,
+j.name,
+j.destination,
+j.travel_dates,
+j.account_code,
+j.confirmation_number,
+j.amount_reimbursed
+FROM June2023_Travel_Reimb j
+
+UNION ALL
+
+SELECT m.employee_ID,
+m.name,
+m.destination,
+m.travel_dates,
+m.account_code,
+m.confirmation_number,
+m.amount_reimbursed
+FROM May2023_Travel_Reimb m
+)
+SELECT ud.employee_ID,
+ud.name,
+ud.destination,
+ud.travel_dates,
+ud.account_code,
+ud.confirmation_number,
+ud.amount_reimbursed
+FROM unioned_totals ud;
+/* DROP VIEW below for editing purposes. */
+DROP VIEW SelectMay_August2023_Reimb;
+/* Confirm,ing my View works below */
+SELECT * FROM  SelectMay_August2023_Reimb;
+
+/* Select all travel reimbursements from May2023_Travel_Reimb that involved a conference in Washington, DC, was confirmed, and have a grant account code. If not confirmed, make a note of the row. */
+SELECT 
+m.employee_ID,
+m.name,
+m.destination,
+m.account_code,
+COALESCE(NULLIF(m.confirmation_number, ''), 'Not Confirmed') AS confirmation
+FROM May2023_Travel_Reimb m
+WHERE (confirmation_number IS NOT NULL) AND (destination LIKE '%Washington, DC%') AND (account_code LIKE '%G%');
+
+/* Select all travel_reimbursements from May2023 and June 2023 that were reimbursed using PAT UNION budgets. 
+Hint: To filter for the PAT union budget, search for account code: 101-24910-534210-%-99999-5499. The wildcard section can be any number.
+Below is the May 2023 travel reimbursements using PAT union budgets that exceed $1500. I am also using the rank windows function for each reimbursement by employee_ID */
+SELECT employee_ID,
+account_code, 
+amount_reimbursed,
+RANK() OVER (PARTITION BY employee_ID ORDER BY amount_reimbursed desc) AS reimbursement_rank
+FROM May2023_Travel_Reimb
+WHERE (account_code LIKE '101-24910-534210-%-99999-5499')
+    AND (amount_reimbursed > 100)
+    ORDER BY amount_reimbursed desc;
+/* Below is the June 2023 reimbursements using PAT union budgets that exceed $1500. I am also using the rank windows function for each reimbursement by employee_ID. */
+SELECT employee_ID,
+account_code,
+amount_reimbursed,
+RANK() OVER (PARTITION BY employee_ID ORDER BY amount_reimbursed desc) AS reimbursement_rank
+FROM June2023_Travel_Reimb
+WHERE (account_code LIKE '101-24910-534210-%-99999-5499')
+    AND (amount_reimbursed > 1500)
+    ORDER BY amount_reimbursed desc;
+
+/* What is the AVG, MIN, MAX, SUM, and COUNT of all travel reimbursements for July 2023? */
+SELECT ROUND(AVG(amount_reimbursed), 2) AS average_reimbursement,
+MIN(amount_reimbursed) AS lowest_reimbursement,
+MAX(amount_reimbursed) AS highest_reimbursement,
+ROUND(SUM(amount_reimbursed), 2) AS total_reimbursements,
+COUNT(*) AS employees_reimbursed
+FROM July2023_Travel_Reimb;
+
+/* In the May 2023 table, show the employees who traveled to Orlando, FL during 05/01 - 053123? */
+SELECT * FROM May2023_Travel_Reimb m
+WHERE m.destination = 'Orlando, FL'
+AND travel_dates BETWEEN '2023-05-01' AND '2023-05-31';
+
+/* Which employees visited California in the May2023_Travel_Reimb table? Exclude Windsor and San Diego locations. Only show travel reimbursements not covered by a grant. */
+SELECT * FROM May2023_Travel_Reimb
+WHERE destination NOT IN ('San Diego, CA', 'Windsor, CA') AND (destination LIKE '%CA%') AND account_code NOT LIKE ('%G%');
+
+/* Find the travel reimbursements in California that are greater than the average in May2023 table? 
+/* Solving with subquery below to filter out by location and reimbursements greater than the AVG. */
+SELECT * FROM May2023_Travel_Reimb 
+WHERE amount_reimbursed > (SELECT AVG(amount_reimbursed) FROM May2023_Travel_Reimb WHERE (destination LIKE ('%CA%')));
