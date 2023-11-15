@@ -230,7 +230,7 @@ RANK() OVER (
     ORDER BY reimbursed desc) AS top_reimbursements
 FROM unioned_data
 /* Filtering by travel dates and reimbursement amount by using two subqueries. */
-WHERE reimbursed < (
+WHERE reimbursed = (
     SELECT reimbursed
     FROM unioned_data
     WHERE reimbursed < 900 AND
