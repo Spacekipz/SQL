@@ -172,7 +172,27 @@ FROM (
 JOIN Payroll_Reimbursements_August2023
 ON August_employees_multiple_reimbursements.employeeID = Payroll_Reimbursements_August2023.employeeID
 GROUP BY August_employees_multiple_reimbursements.employeeID;
-   
+
+/* Filtering by dates in the payroll cycles below. */
+SELECT * FROM Payroll_Reimbursements_August2023
+WHERE date >= '2023-07-01' AND date <= '2023-07-31';
+
+/* For the August2023 table, how many voucher payments exceeded the total average for that cycle? */
+/* Counting all my voucher reimbursements in the outter query. */
+SELECT COUNT(*) AS above_avg_reimbursements
+/* Calculating the AVG in my inner query from derived table, August2023calculation. */
+FROM (
+        SELECT employeeID,
+        AVG(amount) AS avg
+        FROM Payroll_Reimbursements_August2023
+        GROUP BY employeeID
+) AS August2023calculation
+/* Joining the two tables based on employeeID. */
+JOIN Payroll_Reimbursements_August2023 AS pr
+ON August2023calculation.employeeID = pr.employeeID
+/* Pulling my COUNT results from above average voucher reimbursements. */
+WHERE pr.amount > August2023calculation.avg;
+
 /* What is the Max, min, sum, and avgerage payroll reimbursements for the July - August 2023 cycle? */
 SELECT MAX(amount) AS highest_reimbursement,
 MIN(amount) AS lowest_reimbursement,
