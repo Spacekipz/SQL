@@ -1,0 +1,165 @@
+/* Creating the July - August 2023 Payroll Reimbursement Report taqble for csv import. */
+CREATE TABLE BIT_DB.Payroll_Reimbursements_August2023 (
+employeeID INTEGER,
+employee_name VARCHAR,
+date VARCHAR,
+amount INTEGER,
+code INTEGER,
+voucher INTEGER
+);
+
+/* Making sure my July - August 2023 table imported correctly below. */
+SELECT * FROM BIT_DB.Payroll_Reimbursements_August2023;
+
+/* References for dropping tables to make edits with csv files. */
+DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_August2023; 
+DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_September2023; 
+DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_October2023; 
+DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_November2023; 
+
+/* Creating the August - September 2023 Payroll Reimbursement Report taqble for csv import. */
+CREATE TABLE BIT_DB.Payroll_Reimbursements_September2023 (
+employeeID INTEGER,
+employee_name VARCHAR,
+date VARCHAR,
+amount INTEGER,
+code INTEGER,
+voucher VARCHAR
+);
+
+/* Verifying August - September 2023 table populates. */
+SELECT * FROM Payroll_Reimbursements_September2023;
+
+/* Creating the September - October 2023 Payroll Reimbursement Report taqble for csv import. */
+CREATE TABLE BIT_DB.Payroll_Reimbursements_October2023 (
+employeeID INTEGER,
+employee_name VARCHAR,
+date VARCHAR,
+amount INTEGER,
+code INTEGER,
+voucher VARCHAR
+);
+
+/* Verifying October & November 2023 table populates. */
+SELECT * FROM Payroll_Reimbursements_October2023;
+
+/* Combining July - early November payroll reimbursement tables for Payroll monthly payroll reports. */
+SELECT * FROM Payroll_Reimbursements_August2023
+UNION ALL
+SELECT * FROM Payroll_Reimbursements_September2023
+UNION ALL
+SELECT * FROM Payroll_Reimbursements_October2023;
+
+/* Frequent questions asked during monthly payroll report with query solutions below... */
+/* Can you combine several payroll reports into one file or table? Below I create a UNION ALL of several month reports. */
+WITH unioned_report AS (
+SELECT * FROM Payroll_Reimbursements_August2023
+UNION ALL
+SELECT * FROM Payroll_Reimbursements_September2023
+UNION ALL
+SELECT * FROM Payroll_Reimbursements_October2023
+)
+SELECT * FROM unioned_report;
+
+/* Which employees received reimbursements from Payroll multiple times during July-August cycle? */
+SELECT 
+employeeID,
+employee_name
+FROM Payroll_Reimbursements_August2023
+GROUP BY employeeID
+HAVING COUNT(*) > 1;
+
+/* How many employees were reimbursed in the July - August cycle? */
+SELECT COUNT(employeeID)
+FROM Payroll_Reimbursements_August2023;
+
+/* Which employees received multiple payroll reimbursements in July - November cycles? (Multiple reimbursements in at least 2 months cycles.) */
+/* To solve this, I will create a union below to filter the reimbursements for employees who received two or more reimbursements
+throughout the 3 payroll cycles. */
+SELECT employeeID
+FROM Payroll_Reimbursements_August2023
+WHERE employeeID IN (
+    SELECT employeeID
+    FROM Payroll_Reimbursements_September2023
+    GROUP BY employeeID
+    HAVING COUNT(*) >= 2
+    UNION
+    SELECT employeeID
+    FROM Payroll_Reimbursements_October2023
+    GROUP BY employeeID
+    HAVING COUNT(*) >= 2
+)
+GROUP BY employeeID
+HAVING COUNT(*) >= 2;
+
+/* Select all employees who received reimbursements in at least 2 different payroll cycles? */
+SELECT employeeID, employee_name
+FROM Payroll_Reimbursements_August2023
+WHERE employeeID IN (
+    SELECT employeeID
+    FROM Payroll_Reimbursements_September2023
+    GROUP BY employeeID
+    UNION
+    SELECT employeeID
+    FROM Payroll_Reimbursements_October2023
+    GROUP BY employeeID
+)
+GROUP BY employeeID;
+
+/* Select all employees in the July - early November cycle that have an employee ID starting with 0 and received $200 or more in the 3 cycles? */
+SELECT employeeID, employee_name
+FROM Payroll_Reimbursements_August2023
+WHERE employeeID IN (
+    SELECT employeeID
+    FROM Payroll_Reimbursements_September2023
+    UNION
+    SELECT employeeID
+    FROM Payroll_Reimbursements_October2023
+    WHERE employeeID LIKE ('%00%')
+        AND amount >= 200
+)
+GROUP BY employeeID;
+
+/* Select all employees and their employee ID that have the last name 'Wilson'. */
+/* Below, I will create a UNION ALL for the payroll cycle months to only include employees with the last name, 'Wilson'. */
+SELECT employeeID, employee_name
+FROM (
+        SELECT employeeID, employee_name
+        FROM Payroll_Reimbursements_August2023
+        WHERE employee_name LIKE ('Wilson%')
+        UNION ALL
+        SELECT employeeID, employee_name
+        FROM Payroll_Reimbursements_September2023
+        WHERE employee_name LIKE ('Wilson%')
+        UNION ALL
+        SELECT employeeID, employee_name
+        FROM Payroll_Reimbursements_October2023
+        WHERE employee_name LIKE ('Wilson%')
+) AS Wilsons
+GROUP BY employeeID;
+
+/* What is the Max, min, sum, and avgerage payroll reimbursements for the July - August 2023 cycle? */
+SELECT MAX(amount) AS highest_reimbursement,
+MIN(amount) AS lowest_reimbursement,
+ROUND(AVG(amount), 2) AS average_reimbursement,
+ROUND(SUM(amount), 2) AS total
+FROM Payroll_Reimbursements_August2023;
+
+/* Creating a VIEW of the report for July - early November 2023 that shows the most up-to-date data. */
+CREATE VIEW payroll_view AS
+WITH unioned_report AS (
+SELECT * FROM Payroll_Reimbursements_August2023
+UNION ALL
+SELECT * FROM Payroll_Reimbursements_September2023
+UNION ALL
+SELECT * FROM Payroll_Reimbursements_October2023
+)
+SELECT 
+pr.employeeID,
+pr.employee_name,
+pr.date,
+pr.amount,
+pr.code,
+pr.voucher
+FROM unioned_report pr;
+SELECT * FROM payroll_view;
