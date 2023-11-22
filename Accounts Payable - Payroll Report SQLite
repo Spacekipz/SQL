@@ -1,3 +1,5 @@
+/* Accounts Payable Employee Reimbursements Payroll Report */
+
 /* Creating the July - August 2023 Payroll Reimbursement Report taqble for csv import. */
 CREATE TABLE BIT_DB.Payroll_Reimbursements_August2023 (
 employeeID INTEGER,
@@ -11,11 +13,12 @@ voucher INTEGER
 /* Making sure my July - August 2023 table imported correctly below. */
 SELECT * FROM BIT_DB.Payroll_Reimbursements_August2023;
 
-/* References for dropping tables to make edits with csv files. */
+/* References for dropping tables to make edits with csv file importing. 
 DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_August2023; 
 DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_September2023; 
 DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_October2023; 
-DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_November2023; 
+DROP TABLE IF EXISTS BIT_DB.Payroll_Reimbursements_November2023;
+*/
 
 /* Creating the August - September 2023 Payroll Reimbursement Report taqble for csv import. */
 CREATE TABLE BIT_DB.Payroll_Reimbursements_September2023 (
@@ -138,6 +141,38 @@ FROM (
 ) AS Wilsons
 GROUP BY employeeID;
 
+/* Create a query that shows an employes total reimbursement amount based on the August2023, September 2023, and October2023 tables. */
+/* Below, I create a UNION ALL with nested subqueries to aggregate the sum of my data. To shorten the list, I will also create a WHERE clause to only populate results with a total_amount > 500. */
+SELECT employeeID, employee_name, total_amount
+FROM (
+    SELECT employeeID, employee_name, ROUND(SUM(amount), 2) as total_amount
+    FROM (
+        SELECT employeeID, employee_name, amount
+        FROM BIT_DB.Payroll_Reimbursements_August2023
+        UNION ALL 
+        SELECT employeeID, employee_name, amount
+        FROM BIT_DB.Payroll_Reimbursements_September2023
+        UNION ALL
+        SELECT employeeID, employee_name, amount
+        FROM BIT_DB.Payroll_Reimbursements_October2023
+    ) AS combined_reimbursements
+    GROUP BY employeeID, employee_name
+) AS total_per_employee
+WHERE total_amount > 500;
+
+/* What was the AVG amount reimbursed in Payroll_Reimbursements_August2023 for employees with at least 3 reimbursements from payroll? */
+SELECT employeeID, employee_name, ROUND(AVG(amount), 2) AS average_reimbursement
+FROM (    
+        SELECT employeeID, COUNT(*) AS voucher_count
+        FROM Payroll_Reimbursements_August2023
+        GROUP BY employeeID
+        HAVING voucher_count >=3 /* filtering for employees with 3 or more reimbursements aka vouchers. */
+) AS August_employees_multiple_reimbursements
+/* Joining my outer query with derived table below to obtain the average_reimbursement amount for employees who have 3 or more vouchers. */ 
+JOIN Payroll_Reimbursements_August2023
+ON August_employees_multiple_reimbursements.employeeID = Payroll_Reimbursements_August2023.employeeID
+GROUP BY August_employees_multiple_reimbursements.employeeID;
+   
 /* What is the Max, min, sum, and avgerage payroll reimbursements for the July - August 2023 cycle? */
 SELECT MAX(amount) AS highest_reimbursement,
 MIN(amount) AS lowest_reimbursement,
